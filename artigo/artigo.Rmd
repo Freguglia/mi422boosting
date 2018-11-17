@@ -44,6 +44,7 @@ if (file.exists("mnist_train.csv")){
 names(MNIST)[1] <- "Y"
 MNIST$Y <- as.factor(MNIST$Y)
 
+set.seed(1)
 idx_teste <- sample(1:nrow(MNIST), 55000, replace = FALSE)
 treino <- MNIST[-idx_teste, ]
 teste <- MNIST[idx_teste, ]
