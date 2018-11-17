@@ -32,13 +32,13 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
 library(tidyverse)
 ```
 
-```{r load_mnist}
+```{r load_mnist, cache = TRUE}
 if (file.exists("mnist_train.csv")){
   MNIST <- read_csv("mnist_train.csv", col_names = FALSE)
 } else if (file.exists("../mnist_train.csv")) {
   MNIST <- read_csv("../mnist_train.csv", col_names = FALSE)
 } else {
-  stop("Não achei o arquivo do arquivo :(")
+  stop("Não achei o arquivo do arquivo :( Precisa colocar o arquivo que a gente usou pros labs 'mnist_train.csv' na pasta.")
 }
 
 names(MNIST)[1] <- "Y"
