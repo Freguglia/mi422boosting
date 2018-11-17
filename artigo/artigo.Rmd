@@ -23,20 +23,67 @@ header-includes:
 output: rticles::asa_article
 ---
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+# Possivelmente ajustar as figuras aqui direto.
+```
+
+```{r load_pkgs}
+library(tidyverse)
+```
+
+```{r load_mnist}
+if (file.exists("mnist_train.csv")){
+  MNIST <- read_csv("mnist_train.csv", col_names = FALSE)
+} else if (file.exists("../mnist_train.csv")) {
+  MNIST <- read_csv("../mnist_train.csv", col_names = FALSE)
+} else {
+  stop("Não achei o arquivo do arquivo :(")
+}
+
+names(MNIST)[1] <- "Y"
+MNIST$Y <- as.factor(MNIST$Y)
+
+idx_teste <- sample(1:nrow(MNIST), 55000, replace = FALSE)
+treino <- MNIST[-idx_teste, ]
+teste <- MNIST[idx_teste, ]
+```
+
+
 # Introdução
 
-This template demonstrates some of the basic latex you'll need to know to create a ASA article.
-
-\section{Verifications}
-
-@Campbell02 @Schubert13 [@Chi81]
-
+- História
+ @schapire1990
+- Como funciona?
+- Pq funciona?
+  
 # Metodologia
+  
+  - Ideia
+
+## AdaBoost
+
+## Tree Boosting
+
+- Gradient Boosting
+
+@schapire1990 
+
+[@elements]
 
 # Dados
 
+Conjunto de dados MNIST.
+
+- Mostrar alguns números
+
 # Aplicação
+
+- Ajuste
+- Comparar com Random Forest, nnet
 
 # Discussão
 
+- Não sei o que entra em discussão/conclusão?
+  
 # Conclusão
