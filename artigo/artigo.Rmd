@@ -32,6 +32,8 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
 
 ```{r load_pkgs}
 library(tidyverse)
+library(caret)
+library(doMC)
 ```
 
 ```{r load_mnist, cache = TRUE}
@@ -50,6 +52,11 @@ set.seed(1)
 idx_teste <- sample(1:nrow(MNIST), 55000, replace = FALSE)
 treino <- MNIST[-idx_teste, ]
 teste <- MNIST[idx_teste, ]
+```
+
+```{r ajuste_gbm, include = FALSE}
+tc <- trainControl(verboseIter = TRUE, number = 1, repeats = 1)
+gbm <- train(Y ~ ., data = treino, method = "gbm", trControl = tc)
 ```
 
 
