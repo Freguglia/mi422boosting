@@ -1,5 +1,5 @@
 ---
-title: Title here
+title: Boosting
 
 blinded: 0
 
@@ -10,9 +10,9 @@ authors:
 - name: Victor Freguglia Souza
   affiliation: "RA: 137784"
 
-keywords:
-- 3 to 6 keywords
-- that do not appear in the title
+keywords: 
+- Quando for a versão final.
+- Tirar esse campo na .tex;
 
 abstract: |
   The text of your abstract.  200 or fewer words.
@@ -20,6 +20,8 @@ abstract: |
 bibliography: bibliography.bib
 header-includes:
 - \usepackage[utf8]{inputenc}
+- \usepackage[portuguese]{algorithm2e}
+- \usepackage[portuguese]{babel}
 output: rticles::asa_article
 ---
 
@@ -54,15 +56,35 @@ teste <- MNIST[idx_teste, ]
 # Introdução
 
 - História
- @schapire1990
+ @schapire1990 ;
 - Como funciona?
 - Pq funciona?
   
 # Metodologia
   
-  - Ideia
+  - Ideia, propriedades, etc.
 
 ## AdaBoost
+
+O algoritmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeira vez em @adaboost, .....
+
+\begin{algorithm}
+\Inicio{
+  Inicie todos pesos $w_i = 1/N$;\\
+  \Para{$m = 1,\dots,M$}{
+    1. Ajuste um classificador $G_m(x)$;\\
+    2. Calcular 
+    
+    $$\text{err}_m = \frac{\sum_{i = 1}^N w_i I(y_i \neq G_m(x_i))}{\sum_{i = 1}^N w_i};$$\\
+    3. Calcular $\alpha_m = \log \left(\frac{1 - \text{err}_m}{\text{err}_m}\right)$;\\
+    4. Atualizar $w_i \leftarrow w_i \exp \left( \alpha_m I(y_i \neq G_m(x_i)) \right), i = 1, \dots, N$;
+  }
+  Defina o classificador final como 
+  $$G(x) = \arg \max_k \sum_{m = 1}^M \alpha_m I(G_m(x) = k).$$
+}
+\caption{Algoritmo AdaBoost apresentado em \cite{elements} com uma generalização para o caso de múltiplas classes.}
+\label{adaboost_alg}
+\end{algorithm}
 
 ## Tree Boosting
 
@@ -71,6 +93,8 @@ teste <- MNIST[idx_teste, ]
 @schapire1990 
 
 [@elements]
+
+## PCA Whitening
 
 # Dados
 
@@ -81,7 +105,7 @@ Conjunto de dados MNIST.
 # Aplicação
 
 - Ajuste
-- Comparar com Random Forest, nnet
+- Comparar com Random Forest, nnet, pca-whitened
 
 # Discussão
 
