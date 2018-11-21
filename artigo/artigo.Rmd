@@ -36,6 +36,7 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
 library(tidyverse)
 library(caret)
 library(doMC)
+require(xgboost)
 ```
 
 ```{r load_mnist, cache = TRUE}
@@ -54,11 +55,26 @@ set.seed(1)
 idx_teste <- sample(1:nrow(MNIST), 55000, replace = FALSE)
 treino <- MNIST[-idx_teste, ]
 teste <- MNIST[idx_teste, ]
+
+colvars <- apply(MNIST,2,var)
+cols_in <- as.numeric(c(1,which(colvars > 10)))
+
 ```
 
-```{r ajuste_gbm, include = FALSE, cache = TRUE}
-#tc <- trainControl(verboseIter = TRUE, number = 1, repeats = 1)
-#gbm <- train(Y ~ ., data = treino, method = "gbm", trControl = tc)
+```{r ajuste_gbm, include = FALSE, cache = TRUE, eval = FALSE}
+registerDoMC(3)
+set.seed(1)
+tc <- trainControl(number = 1, repeats = 1)
+xgb <- train(Y ~ ., data = treino[,cols_in], method = "xgbTree", trControl = tc, 
+             tuneGrid = expand.grid(nrounds = c(600),
+                                   max_depth = c(6),
+                                   eta = c(.08),
+                                   gamma = 0,
+                                   colsample_bytree = 0.8,
+                                   subsample = 0.8,
+                                   min_child_weight = 1),
+             nthread = 1)
+mean(unlist(teste[,1]) == predict(xgb, teste[,cols_in]))
 ```
 
 
