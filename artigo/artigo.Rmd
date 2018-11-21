@@ -64,7 +64,7 @@ teste <- MNIST[idx_teste, ]
 
 # Introdução
 
- Boosting é o nome dado a um tipo de algoritmo que, assim como outros métodos em Machine Learning como Bagging e Florestas Aleatórias, busca combinar um grande número de preditores com baixo poder de predição para compor um bom preditor.  O conceito é fundamentado das ideias apresentadas em @kearns1988 e @schapire1990.
+ Boosting é o nome dado a um tipo de algoritmo que, assim como outros métodos em Machine Learning como Bagging e Florestas Aleatórias, busca combinar um grande número de preditores com baixo poder de predição (isto é, um pouco mais eficientes do que a escolha ao acaso) para compor um bom preditor.  O conceito é fundamentado das ideias apresentadas em @kearns1988 e @schapire1990.
  
  Diferentemente dos outros métodos citados, onde os preditores fracos que serão combinados são criados de maneira independente (e aleatória devido ao processo de bootstrap), no método de Boosting os preditores fracos são criados de maneira a melhorar o desempenho em regiões com altas taxas de erro. 
  
@@ -98,12 +98,38 @@ A principal diferença entre os diferentes algoritmos de Boosting propostos est�
 Do ponto de vista da teoria de decisão, escolher o melhor preditor significa escolher a função $G^*$ que minimiza a função risco, definida como o valor esperado da função de perda $L(\cdot,\cdot)$.
 
 \begin{equation}
-G^* = \arg \min_G \mathbb{E}L(Y,G(\mathbf{X}))
+G^* = \arg \min_{G \in \mathcal{G}} \mathbb{E}L(Y,G(\mathbf{X}))
 \end{equation}
+
+Em particular, em um procedimento de Boosting, estamos procurando em um espaço de funções $\mathcal{G}$ formado por combinações de preditores fracos $h_m$ de alguma forma pré-definida, por exemplo, árvores de decisão com um número fixo (e, em geral, pequeno) de nós,
+
+\begin{equation}
+\mathcal{G} = \{G: G(x) = \sum_{i = 1}^M \alpha_i h_m(x) \}.
+\end{equation}
+
+Note que, o risco para um preditor específico $G$ é desconhecido, uma vez que não assumimos nenhuma distribuição, impossibilitando o calculo do valor esperado da função perda para esse preditor. Uma boa estratégia para criação de uma função de predição $G \in \mathcal{G}$ consiste então em escolher iterativamente os preditores $h_m$ de forma a reduzir o risco (empírico) a cada passo. Um método muito comum para atingir pontos de mínimo em procedimentos iterativos é mover a solução na direção contrária ao gradiente em cada iteração (algoritmo de Newton-Raphson e Backpropagation são exemplos parecidos) e nisso é baseado o algoritmo chamado Gradient Boosting.
  
 ## Gradient Boosting
 
  - Citar o xgboost, caret.
+ 
+ \begin{algorithm}[h]
+\Inicio{
+  $(y_i, x_i), i = 1,\dots, N$;\\
+  Inicie com o preditor constante $H_0 = \arg \min_c \sum_{i = 1}^N L(y_i,c)$;\\
+  \Para{$m = 1,\dots,M$}{
+    1. Calcular
+    $$r_{im} = -\left[ \frac{\partial L(y_i, G(x_i))}{\partial }\right]_{G = H_{m-1}};$$\\
+    2. Ajustar um novo preditor fraco $h_m$ ao conjunto de dados $(r_{im},x_i);$\\
+    3. ;\\
+    4. ;
+  }
+  Defina o classificador final como 
+  $$G(x) = H_M(x).$$
+}
+\caption{Algoritmo Gradient Boosting apresentado em \cite{boosting2001}.}
+\label{gradboost_alg}
+\end{algorithm}
 
 ## PCA Whitening
 
