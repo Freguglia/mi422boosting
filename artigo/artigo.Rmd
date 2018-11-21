@@ -22,6 +22,7 @@ header-includes:
 - \usepackage[utf8]{inputenc}
 - \usepackage[portuguese]{algorithm2e}
 - \usepackage[portuguese]{babel}
+- \usepackage{amssymb}
 output: rticles::asa_article
 ---
 
@@ -54,28 +55,21 @@ treino <- MNIST[-idx_teste, ]
 teste <- MNIST[idx_teste, ]
 ```
 
-```{r ajuste_gbm, include = FALSE}
-tc <- trainControl(verboseIter = TRUE, number = 1, repeats = 1)
-gbm <- train(Y ~ ., data = treino, method = "gbm", trControl = tc)
+```{r ajuste_gbm, include = FALSE, cache = TRUE}
+#tc <- trainControl(verboseIter = TRUE, number = 1, repeats = 1)
+#gbm <- train(Y ~ ., data = treino, method = "gbm", trControl = tc)
 ```
 
 
 # Introdução
 
-- História
- @schapire1990 ;
-- Como funciona?
-- Pq funciona?
-  
-# Metodologia
-  
-  - Ideia, propriedades, etc.
+ Boosting é o nome dado a um tipo de algoritmo que, assim como outros métodos em Machine Learning como Bagging e Florestas Aleatórias, busca combinar um grande número de preditores com baixo poder de predição para compor um bom preditor.  O conceito é fundamentado das ideias apresentadas em @kearns1988 e @schapire1990.
+ 
+ Diferentemente dos outros métodos citados, onde os preditores fracos que serão combinados são criados de maneira independente (e aleatória devido ao processo de bootstrap), no método de Boosting os preditores fracos são criados de maneira a melhorar o desempenho em regiões com alta taxa de erro. 
+ 
+O algoritmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeira vez em @adaboost, é um dos exemplos mais clássicos de algoritmo de boosting para o problema de classificação binária. Nele, a cada passo $m$, um novo classificador $G_m$ é ajustado com base em uma versão ponderada do conjunto de dados original, na qual o peso de cada observação depende do desempenho do classificador anterior: pontos classificados de maneira errada recebem peso maior, assim, têm uma chance maior de serem corrigidos pelos classificadores ajustados na próxima iteração. O Algoritmo \ref{adaboost_alg} apresenta a descrição completa do AdaBoost.
 
-## AdaBoost
-
-O algoritmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeira vez em @adaboost, .....
-
-\begin{algorithm}
+\begin{algorithm}[h]
 \Inicio{
   Inicie todos pesos $w_i = 1/N$;\\
   \Para{$m = 1,\dots,M$}{
@@ -87,19 +81,27 @@ O algoritmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeir
     4. Atualizar $w_i \leftarrow w_i \exp \left( \alpha_m I(y_i \neq G_m(x_i)) \right), i = 1, \dots, N$;
   }
   Defina o classificador final como 
-  $$G(x) = \arg \max_k \sum_{m = 1}^M \alpha_m I(G_m(x) = k).$$
+  $$G(x) = \text{sign}(\sum_{m = 1}^M \alpha_m I(G_m(x) = k)).$$
 }
-\caption{Algoritmo AdaBoost apresentado em \cite{elements} com uma generalização para o caso de múltiplas classes.}
+\caption{Algoritmo AdaBoost apresentado em \cite{elements}. Aqui, as classes do problema de classificação são representadas pelos valores -1 e 1.}
 \label{adaboost_alg}
 \end{algorithm}
 
-## Tree Boosting
+Note que o classificador a ser usado não precisa ser nenhum específico e, portanto, se comporta como um parâmetro a ser escolhido por um processo de regulagem (tuning) do problema, embora o mais comum, pela grande flexibilidade seja a árvore de classificação e regressão. 
 
-- Gradient Boosting
+Falar que precisa ainda pensar nos casos de regressão e classificação multivariada. Citar a extensão multivariada do adaBoost @SAMME. Falar que vai focar só no Gradient Boosting porque é mais geral. Citar que os algoritmos diferem principalmente em como faz reweighting dos dados.
+  
+# Metodologia
 
-@schapire1990 
+Do ponto de vista da teoria de decisão, escolher o melhor preditor significa escolher a função $G^*$ que minimiza a função risco, definida como o valor esperado da função de perda $L(\cdot,\cdot)$.
 
-[@elements]
+\begin{equation}
+G^* = \arg \min_G \mathbb{E}L(Y,G(\mathbf{X}))
+\end{equation}
+ 
+## Gradient Boosting
+
+ - Citar o xgboost, caret.
 
 ## PCA Whitening
 
