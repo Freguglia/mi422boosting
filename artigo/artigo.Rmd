@@ -80,11 +80,11 @@ mean(unlist(teste[,1]) == predict(xgb, teste[,cols_in]))
 
 # Introdução
 
- Boosting é o nome dado a um tipo de algoritmo que, assim como outros métodos em Machine Learning como Bagging e Florestas Aleatórias, busca combinar um grande número de preditores com baixo poder de predição (isto é, um pouco mais eficientes do que a escolha ao acaso) para compor um bom preditor.  O conceito é fundamentado das ideias apresentadas em @kearns1988 e @schapire1990.
+ Boosting é o nome dado a um tipo de algoritmo que, assim como outros métodos em Machine Learning como Bagging e Florestas Aleatórias, busca combinar um grande número de preditores com baixo poder de predição (isto é, um pouco mais eficientes do que a escolha ao acaso) para compor um bom preditor.  O conceito é fundamentado nas ideias apresentadas em @kearns1988 e @schapire1990.
  
- Diferentemente dos outros métodos citados, onde os preditores fracos que serão combinados são criados de maneira independente (e aleatória devido ao processo de bootstrap), no método de Boosting os preditores fracos são criados de maneira a melhorar o desempenho em regiões com altas taxas de erro. 
+ Diferentemente dos outros métodos citados, onde os preditores fracos que serão combinados são criados de maneira independente (e aleatória devido ao processo de bootstrap), no método de Boosting os preditores fracos são criados de maneira a melhorar o desempenho em regiões com altas taxas de erro. Isto é, se pensarmos que cada preditor tem um "voto" na decisão final, o método nos fornece um comitê em que aqueles que tem grande convicção têm mais poder na decisão. Estes de grande convicção, sabem muito sobre uma parte do espaço amostral (não sei se amostral é a melhor palavra).
  
-O algoritmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeira vez em @adaboost, é um dos exemplos mais clássicos de algoritmo de boosting para o problema de classificação binária. Nele, a cada passo $m$, um novo classificador $G_m$ é ajustado com base em uma versão ponderada do conjunto de dados original, na qual o peso de cada observação depende do desempenho do classificador anterior: pontos classificados de maneira errada recebem peso maior, assim, têm uma chance maior de serem corrigidos pelos classificadores ajustados na próxima iteração. O Algoritmo \ref{adaboost_alg} apresenta a descrição completa do AdaBoost. Note que os classificadores $G_m$ a serem usados não precisam ser de nenhum tipo específico e, portanto, se comporta como um parâmetro a ser escolhido por um processo de regulagem (tuning) do problema. Apesar disso, o mais comum, pela grande flexibilidade, é a árvore de classificação e regressão (CART).
+O algoritmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeira vez em @adaboost, é um dos exemplos mais clássicos de algoritmo de boosting para o problema de classificação binária. Nele, a cada passo $m$, um novo classificador $G_m$ é ajustado com base em uma versão ponderada do conjunto de dados original, na qual o peso de cada observação depende do desempenho do classificador anterior: pontos classificados de maneira errada recebem peso maior, e assim, têm uma chance maior de serem corrigidos pelos classificadores ajustados na próxima iteração. O Algoritmo \ref{adaboost_alg} apresenta a descrição completa do AdaBoost. Note que os classificadores $G_m$ a serem usados não precisam ser de nenhum tipo específico e, portanto, se comporta como um parâmetro a ser escolhido por um processo de regulagem (tuning) do problema. Apesar disso, o mais comum, pela grande flexibilidade, é a árvore de classificação e regressão (CART).
 
 \begin{algorithm}[h]
 \Inicio{
@@ -149,6 +149,10 @@ Note que, o risco para um preditor específico $G$ é desconhecido, uma vez que 
 
 ## PCA Whitening
 
+Talvez isso não seja necessário pois habitualmente as arvores nao precisam desse tipo de tratamento. Svm e redes habitualmente precisam pq usam demais combinacoes lineares. 
+
+Mas essa secao pode ser util pra fazer comparacao com os outros metodos em que isso serve e melhorar a secao de discussao.
+
 # Dados \label{sec_dados}
 
 Conjunto de dados MNIST.
@@ -163,5 +167,15 @@ Conjunto de dados MNIST.
 # Discussão
 
 - Não sei o que entra em discussão/conclusão?
+
+Proposta:
+
+Discutir (pq em aplicação não há discussão crítica) os resultados da comparação do gbm com os métodos anteriores em questão de velocidade, precisão, flexibilidade. Considerar as variantes xgboost, lightgbm
+
+Discutir efeito do pca no gbm e em outros métodos que precisem disso, como redes e svm.
+
+Usar outros aspectos considerados no arquivo "kuhn_cheatsheet" pra comparar?
   
 # Conclusão
+
+Fazer por último e ver o que aprendemos do trabalho.
