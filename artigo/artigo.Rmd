@@ -117,13 +117,13 @@ Do ponto de vista da teoria de decisão, escolher o melhor preditor significa es
 G^* = \arg \min_{G \in \mathcal{G}} \mathbb{E}L(Y,G(\mathbf{X}))
 \end{equation}
 
-Em particular, em um procedimento de Boosting, estamos procurando em um espaço de funções $\mathcal{G}$ formado por combinações de preditores fracos $h_m$ de alguma forma pré-definida, por exemplo, árvores de decisão com um número fixo (e, em geral, pequeno) de nós,
+Em particular, em um procedimento de Boosting, procuramos pela $G^*$ em um espaço de funções $\mathcal{G}$ formado por combinações de preditores fracos $h_m$ de alguma forma pré-definida, por exemplo, árvores de decisão com um número fixo (e, em geral, pequeno) de nós,
 
 \begin{equation}
 \mathcal{G} = \{G: G(x) = \sum_{i = 1}^M \alpha_i h_m(x) \}.
 \end{equation}
 
-Note que, o risco para um preditor específico $G$ é desconhecido, uma vez que não assumimos nenhuma distribuição, impossibilitando o calculo do valor esperado da função perda para esse preditor. Uma boa estratégia para criação de uma função de predição $G \in \mathcal{G}$ consiste então em escolher iterativamente os preditores $h_m$ de forma a reduzir o risco (empírico) a cada passo. Um método muito comum para atingir pontos de mínimo em procedimentos iterativos é mover a solução na direção contrária ao gradiente em cada iteração (algoritmo de Newton-Raphson e Backpropagation são exemplos parecidos) e nisso é baseado o algoritmo chamado Gradient Boosting.
+Note que o risco para um preditor específico $G$ é desconhecido, uma vez que não assumimos nenhuma distribuição, impossibilitando o calculo do valor esperado da função perda para esse preditor. Uma boa estratégia para criação de uma função de predição $G \in \mathcal{G}$ consiste então em escolher iterativamente os preditores $h_m$ de forma a reduzir o risco (empírico) a cada passo. Um método muito comum para atingir pontos de mínimo em procedimentos iterativos é mover a solução na direção contrária ao gradiente em cada iteração (algoritmo de Newton-Raphson e Backpropagation são exemplos parecidos) e nisso é baseado o algoritmo chamado Gradient Boosting.
  
 ## Gradient Boosting
 
