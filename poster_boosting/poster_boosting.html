@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Victor Freguglia; Leonarcho Uchoa Pedreira" />
-  <title>Algoritmos de Boosting</title>
+  <title>Boosting</title>
     <style type="text/css">code{white-space: pre;}</style>
     <link rel="stylesheet" href="drposter_files//drposter.css" />
     <link rel="stylesheet" href="custom.css"/>
@@ -14,7 +14,7 @@
 <div class="slides ">
 
 <header>
-    <h1 class="title">Algoritmos de Boosting</h1>
+    <h1 class="title">Boosting</h1>
     <h2 class="author">Victor Freguglia; Leonarcho Uchoa Pedreira</h2>
 </header>
 
@@ -24,8 +24,8 @@
 <h2>O Conceito de Boosting</h2>
 <ul>
 <li>Combinar um grande número de preditores com baixo poder de predição para compor um bom preditor.</li>
-<li>Diferentemente de outros métodos similares, onde os preditores fracos combinados são criados de maneira independente, no Boosting os preditores de maneira a melhorar o desempenho em regiões com altas taxas de erro.</li>
-<li>Se pensarmos que cada preditor tem um “voto” na decisão final, o método nos fornece um comitê em que aqueles que tem grande convicção têm mais poder na decisão.</li>
+<li>Os preditores (árvores de decisão) são ajustados sequencialmente de maneira a melhorar o desempenho do anterior, ao compreender melhor as regiões com altas taxas de erro.</li>
+<li>Se pensarmos que cada preditor tem um “voto” na decisão final, o método nos fornece um comitê em que a decisão final é a ponderação de todos os votos. Aqueles que têm grande convicção têm mais poder na decisão.</li>
 </ul>
 </div>
 <div id="visualizacao" class="section level2">
@@ -72,20 +72,20 @@
 <li>Para <span class="math inline">\(m = 1, \dots, M\)</span> faça:</li>
 </ul>
 <ol style="list-style-type: decimal">
-<li>Calcular <span class="math display">\[r_{im} = -\left[ \frac{\partial L(y_i, G(x_i))}{\partial }\right]_{G = H_{m-1}};\]</span></li>
-<li>Ajustar um novo preditor fraco <span class="math inline">\(h_m\)</span> aos resíduos <span class="math inline">\((r_{im},x_i);\)</span></li>
-<li>Calcule o multiplicador <span class="math inline">\(\gamma_{m}\)</span> como <span class="math display">\[\gamma_m = \underset{\gamma}{\operatorname{arg\,min}} \sum_{i=1}^n L\left(y_i, H_{m-1}(x_i) + \gamma h_m(x_i)\right);\]</span></li>
+<li>Calcular os pseudo-resíduos <span class="math display">\[r_{im} = -\left[ \frac{\partial L(y_i, G(x_i))}{\partial G(x_i) }\right]_{G(x_i) = H_{m-1}(x_i)};\]</span></li>
+<li>Ajustar uma nova árvore <span class="math inline">\(h_m\)</span> aos resíduos <span class="math inline">\((r_{im},x_i);\)</span></li>
+<li>Calcule o peso do voto <span class="math inline">\(\gamma_{m}\)</span> como <span class="math display">\[\gamma_m = \underset{\gamma}{\operatorname{arg\,min}} \sum_{i=1}^n L\left(y_i, H_{m-1}(x_i) + \gamma h_m(x_i)\right);\]</span></li>
 <li>Atualize o modelo: <span class="math display">\[\displaystyle H_{m}(x)=H_{m-1}(x)+\gamma_m h_m(x);\]</span></li>
 </ol>
 <ul>
-<li>Defina o classificador final como <span class="math display">\[G(x) = H_M(x).\]</span></li>
+<li>Defina o preditor final como <span class="math display">\[G(x) = H_M(x).\]</span></li>
 </ul>
 </div>
 <div id="vantagens" class="section level3">
 <h3>Vantagens</h3>
 <ul>
-<li>Garante, ao menos na amostra de treino, um desempenho melhor a cada passo.</li>
-<li>Funciona para Regressão e classificação com adaptação na função perda.</li>
+<li>Alto poder de preditivo (ganhador de vários concursos recentes)</li>
+<li>Otimização direta da função perda (regressão, classificação, regressão quantílica, modelo de cox, ranqueamento, etc…).</li>
 <li>Não requer nenhum tipo de pré-processamento.</li>
 </ul>
 </div>
@@ -93,17 +93,17 @@
 <h3>Desvantagens</h3>
 <ul>
 <li>Alto custo computacional;</li>
-<li>É possível (embora pouco provável) ocorrer overfitting;</li>
-<li>Não interpretável;</li>
+<li>Pode ser muito sensível a dados muito ruidosos;</li>
+<li>Sequer refinamento cuidadoso;</li>
 </ul>
 </div>
-<div id="tuning" class="section level3 fullwidth">
-<h3>Tuning</h3>
-<p>Algumas variações do Gradient Boosting incluem:</p>
+<div id="refinamento" class="section level3 fullwidth">
+<h3>Refinamento</h3>
+<p>Principais refinamentos do Gradient Boosting incluem:</p>
 <ul>
-<li>Sortear um subconjunto de tamanho <span class="math inline">\(N&#39; &lt; N\)</span> da amostra de treino para o ajuste do preditor a cada passo.</li>
-<li>Encolher os preditores por algum valor <span class="math inline">\(\alpha &lt; 1\)</span>, isto é, substituir o passo de atualização por <span class="math display">\[\displaystyle H_{m}(x)=H_{m-1}(x)+\alpha \gamma_m h_m(x).\]</span></li>
-<li>Utilizar diferentes números de nós quando o preditor fraco utlizado é uma Árvore de Regressão e Classificação.</li>
+<li>Subamostragem: Sortear um subconjunto de tamanho <span class="math inline">\(N&#39; &lt; N\)</span> da amostra de treino para o ajuste do preditor a cada passo.</li>
+<li>Penalização: Encolher os preditores por algum valor <span class="math inline">\(\alpha &lt; 1\)</span>, isto é, substituir o passo de atualização por <span class="math display">\[\displaystyle H_{m}(x)=H_{m-1}(x)+\alpha \gamma_m h_m(x).\]</span></li>
+<li>Utilizar diferentes números de nós terminais para as árvores.</li>
 </ul>
 </div>
 <div id="implementacao" class="section level3 fullwidth">
@@ -112,7 +112,8 @@
 <ul>
 <li>Pacote <code>gbm</code>: Generalized Boosted Regression Models;</li>
 <li>Pacote <code>xgboost</code>: Extreme Gradient Boosting;</li>
-<li>Plataforma <code>h2o</code>: www.h2o.ai</li>
+<li>Plataforma <code>h2o</code>: www.h2o.ai;</li>
+<li>Pacote <code>LightGBM</code>: Implementação da Microsoft para gbm;</li>
 </ul>
 </div>
 </div>
@@ -132,8 +133,8 @@
 <h3>Resultados</h3>
 <ul>
 <li>60000 Imagens 28x28 pixels de dígitos escritos a mão.</li>
-<li>Classificação dos dígitos (10 categorias) utilizando os valores dos 784 pixels como covariáveis.</li>
-<li>Acurácia de 97.33% no conjunto de teste da competição no Kaggle, utilizando Gradient Boosting, com taxa de aprendizado <span class="math inline">\(\alpha = 0.08\)</span>, árvores com 7 nós nos classificadores e 600 passos de Boosting, sem nenhum tipo de pré-processamento.</li>
+<li>Classificação dos dígitos (107 categorias) utilizando os valores dos 784 pixels como covariáveis.</li>
+<li>Acurácia de 97.33% no conjunto de teste da competição no Kaggle, utilizando Gradient Boosting, com taxa de aprendizado <span class="math inline">\(\alpha = 0.08\)</span>, árvores com 7 nós nos classificadores e 600 passos de Boosting, <strong>sem nenhum tipo de pré-processamento</strong>.</li>
 <li>Implementação em <code>R</code> utilizando o framework <code>h2o</code> e resultados no Kaggle disponíveis no QR-code.</li>
 </ul>
 <p><img src="frame.png" class="qrcode"/></p>
@@ -145,10 +146,9 @@
 <div id="conclusao" class="section level2">
 <h2>Conclusão</h2>
 <ul>
-<li>Boosting produz classificadores muito eficiêntes;</li>
-<li>Apesar das variações incluirem diversos parâmetros, a variação deles, exceto para casos específicos, não tem grande efeito na qualidade final das predições; Por outro lado, podem reduzir o custo computacional ou alterar a quantidade necessária de passos até produzir um bom preditor;</li>
-<li>A forma com que o algoritmo é construído causa a impressão de que o overfitting deve ocorrer, mas a quantidade necessária de passos para que ele de fato ocorra é muito grande. A visualização exemplifica como os passos tendem a modificar cada vez menos o modelo.</li>
-<li>Por se tratar de modificações sequênciais de um único preditor, não é necessário guardar um grande número de modelos simutaneamente. Por outro lado, isso torna a paralelização mais complicada.</li>
+<li>Boosting produz preditores muito eficazes;</li>
+<li>Apesar de incluir diversos parâmetros de refinamento, exceto em casos específicos, muitos não tem grande efeito na qualidade final das predições; Por outro lado, podem reduzir o custo computacional ou alterar a quantidade necessária de passos até produzir um bom preditor;</li>
+<li>A forma com que o algoritmo é construído causa a impressão de que o overfitting deve ocorrer, mas a quantidade necessária de passos para que ele de fato ocorra é muito grande.</li>
 </ul>
 </div>
 <div id="referencias" class="section level2">
