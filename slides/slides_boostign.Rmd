@@ -1,0 +1,38 @@
+---
+title: "Boosting"
+output:
+  revealjs::revealjs_presentation:
+    theme: serif
+    highlight: pygments
+    center: true
+    transition: slide
+    mathjax: local
+    self_contained: false
+---
+
+## Idéia Básica
+
+- Ajustar um monte de árvores, uma atrás da outra
+- Onde? Nos resíduos!!!
+
+## Região de Decisão
+
+![](animation.gif)
+
+## Por quê usar?
+
+- Rápido
+- Extremamente flexível
+- Paralelizado
+
+#
+
+## Um bom motivo
+
+![](images/kdd_xgb.png)
+
+##
+
+![](images/medium_xgb.png)
+
+
