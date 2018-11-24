@@ -71,6 +71,8 @@ img {
 	background-color: white;  /* Eliminate transparency for consistency among all images with non-white backgrounds */
 }
 
+.qrcode{ width: 20%; height: auto;}
+
 p {
 	max-width: 100%;  /* Prevent paragraphs overflowing the flexbox container */
 }

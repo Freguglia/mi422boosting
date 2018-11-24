@@ -18,139 +18,118 @@
     <h2 class="author">Victor Freguglia; Leonarcho Uchoa Pedreira</h2>
 </header>
 
-<div id="section" class="section level1 col-2" style="grid-row: span 4;">
+<div id="section" class="section level1 col-2">
 <h1></h1>
-<!-- Span the first column for four rows, that way we can capture the usage block, two rows of template examples, and refs/footer information -->
-<div id="conceito-do-boosting" class="section level2">
-<h2>Conceito do Boosting</h2>
+<div id="o-conceito-de-boosting" class="section level2">
+<h2>O Conceito de Boosting</h2>
 <ul>
-<li>Combinar diversos preditores fracos em um classificador muito poderoso.</li>
-<li>Alguma coisa</li>
-<li>Outra coisa</li>
+<li>Combinar um grande número de preditores com baixo poder de predição para compor um bom preditor.</li>
+<li>Diferentemente de outros métodos similares, onde os preditores fracos combinados são criados de maneira independente, no Boosting os preditores de maneira a melhorar o desempenho em regiões com altas taxas de erro.</li>
+<li>Se pensarmos que cada preditor tem um “voto” na decisão final, o método nos fornece um comitê em que aqueles que tem grande convicção têm mais poder na decisão.</li>
 </ul>
-<p style="text-align:center;">
-<img src="drposter.png" style="width:60%;" />
-</p>
 </div>
+<div id="visualizacao" class="section level2">
+<h2>Visualização</h2>
+<div id="section-1" class="section level3">
+<h3></h3>
+<p><img src="poster_boosting_files/figure-html/unnamed-chunk-1-1.png" width="768" /></p>
+</div>
+<div id="section-2" class="section level3">
+<h3></h3>
+<p><img src="poster_boosting_files/figure-html/unnamed-chunk-2-1.png" width="768" /></p>
+</div>
+<div id="section-3" class="section level3">
+<h3></h3>
+<p><img src="poster_boosting_files/figure-html/unnamed-chunk-3-1.png" width="768" /></p>
+</div>
+<div id="section-4" class="section level3">
+<h3></h3>
+<p><img src="poster_boosting_files/figure-html/unnamed-chunk-4-1.png" width="768" /></p>
+</div>
+<div id="section-5" class="section level3">
+<h3></h3>
+<p><img src="poster_boosting_files/figure-html/unnamed-chunk-5-1.png" width="768" /></p>
+</div>
+<div id="section-6" class="section level3">
+<h3></h3>
+<p><img src="poster_boosting_files/figure-html/unnamed-chunk-6-1.png" width="768" /></p>
+</div>
+</div>
+</div>
+<div id="section-7" class="section level1 col-2">
+<h1></h1>
 <div id="gradient-boosting" class="section level2">
 <h2>Gradient Boosting</h2>
-<ol style="list-style-type: decimal">
-<li>Comece com blabla</li>
+<div id="algoritmo" class="section level3">
+<h3>Algoritmo</h3>
+<ul>
+<li><span class="math inline">\((y_i, x_i), i = 1,\dots, N\)</span>;</li>
+<li><span class="math inline">\(L(\cdot, \cdot)\)</span> - função perda;</li>
+<li>Inicie com o preditor constante <span class="math inline">\(H_0 = \arg \min_c \sum_{i = 1}^N L(y_i,c)\)</span>;</li>
 <li>Para <span class="math inline">\(m = 1, \dots, M\)</span> faça:</li>
-</ol>
-</div>
-<div id="licensing" class="section level2">
-<h2>Licensing</h2>
-<div id="rd-party" class="section level3">
-<h3>3rd party</h3>
-<ul>
-<li>Package inspired by reveal.js presentation framework<span class="citation">(<span class="citeproc-not-found" data-reference-id="revealjs"><strong>???</strong></span>)</span> and its R package<span class="citation">(<span class="citeproc-not-found" data-reference-id="rstudio-reveal"><strong>???</strong></span>)</span></li>
-<li>Fonts under their respective licenses</li>
-<li>Logo: thanks to Openclipart for the CC0 <a href="https://openclipart.org/detail/244447/minimliast-graduation-hat">graduation cap image</a>, <a href="https://github.com/GuangchuangYu/hexSticker">hexSticker</a> for sticker generation, and <a href="https://github.com/lpantano/bcbioSmallRna/blob/master/inst/sticker/sticker.R">bcbioSmallRna</a> for a helpful sticker example</li>
-<li>See <a href="https://citationstyles.org/">CitationStyles.org</a> and the CSL project<span class="citation">(<span class="citeproc-not-found" data-reference-id="csl-github"><strong>???</strong></span>)</span> for more info about citation options (CC BY SA 3.0)</li>
 </ul>
-</div>
-<div id="this-package" class="section level3">
-<h3>This package</h3>
-<ul>
-<li>drposter may be used under different licenses at your option</li>
-<li>Entire R package: GPLv3 (like <a href="https://github.com/rstudio/rmarkdown">R markdown</a>)</li>
-<li>Files for the <a href="https://github.com/bbucior/drposter/tree/master/inst/rmarkdown/templates/drposter/skeleton/drposter_files">drposter pandoc template</a>: same conditions as the official <a href="https://github.com/jgm/pandoc/tree/master/data/templates">pandoc templates</a></li>
-<li>Poster CSS: <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 public domain</a></li>
-</ul>
-</div>
-</div>
-<div id="community" class="section level2" style="--header-color:darkred; --other-color-for-h2-gradient:red;">
-<h2>Community</h2>
-<p class="qr">
-<img src="Resources/qr_code.png" alt="QR code" /> For more information, please visit the project page at <a href="https://github.com/bbucior/drposter" class="uri">https://github.com/bbucior/drposter</a>. Feel free to report issues, pull requests, or general comments on Github.
-</p>
-</div>
-</div>
-<div id="section-1" class="section level1 col-2">
-<h1></h1>
-<div id="how-to-use-this-package" class="section level2">
-<h2>How to use this package</h2>
-<div id="installation-and-updates" class="section level3 fullwidth">
-<h3>Installation and updates</h3>
 <ol style="list-style-type: decimal">
-<li><code>devtools::install_github(&quot;bbucior/drposter&quot;, dep=FALSE)</code> (or <code>install_local</code> on a downloaded copy) to install/update the package</li>
-<li>In RStudio, you can find the format listed as a template under the “New R Markdown” wizard, or use the command line.</li>
-<li>Template files are cached in <code>drposter_files/</code> to decouple your poster from the installed package version. Use <code>drposter_update</code> to resync them.</li>
+<li>Calcular <span class="math display">\[r_{im} = -\left[ \frac{\partial L(y_i, G(x_i))}{\partial }\right]_{G = H_{m-1}};\]</span></li>
+<li>Ajustar um novo preditor fraco <span class="math inline">\(h_m\)</span> aos resíduos <span class="math inline">\((r_{im},x_i);\)</span></li>
+<li>Calcule o multiplicador <span class="math inline">\(\gamma_{m}\)</span> como <span class="math display">\[\gamma_m = \underset{\gamma}{\operatorname{arg\,min}} \sum_{i=1}^n L\left(y_i, H_{m-1}(x_i) + \gamma h_m(x_i)\right);\]</span></li>
+<li>Atualize o modelo: <span class="math display">\[\displaystyle H_{m}(x)=H_{m-1}(x)+\gamma_m h_m(x);\]</span></li>
 </ol>
-</div>
-<div id="customizing-the-template" class="section level3">
-<h3>Customizing the template</h3>
 <ul>
-<li>Avoid modifying <code>drposter_files/</code></li>
-<li>Indirectly override those rules in your own <code>custom.css</code> or equivalent</li>
-<li>Easier to see and share your changes</li>
-<li>Decouples your modifications from the base drposter styles</li>
-<li>Customize the format of the bibliography<span class="citation">(<span class="citeproc-not-found" data-reference-id="rstudio-bib"><strong>???</strong></span>; <span class="citeproc-not-found" data-reference-id="stackoverflow-refs"><strong>???</strong></span>)</span> using a CSL style<span class="citation">(<span class="citeproc-not-found" data-reference-id="csl-github"><strong>???</strong></span>)</span></li>
+<li>Defina o classificador final como <span class="math display">\[G(x) = H_M(x).\]</span></li>
 </ul>
 </div>
-<div id="export" class="section level3">
-<h3>Export</h3>
+<div id="vantagens" class="section level3">
+<h3>Vantagens</h3>
 <ul>
-<li>View and “print as PDF” from Chrome<span class="citation">(<span class="citeproc-not-found" data-reference-id="firefox-footnote"><strong>???</strong></span>)</span> <!-- Note: the footnote used to be a bibtex "note," but the default ACS template doesn't include that field --></li>
-<li>Be sure to save a PDF (and possibly html with <code>self_contained: true</code>) to archive your project at the end, in case there are changes in pandoc, rmarkdown, etc.</li>
-<li>You can also render the poster in other formats, such as a <code>github_document</code> or <code>revealjs::revealjs_presentation</code></li>
+<li>Garante, ao menos na amostra de treino, um desempenho melhor a cada passo.</li>
+<li>Funciona para Regressão e classificação com adaptação na função perda.</li>
+</ul>
+</div>
+<div id="desvantagens" class="section level3">
+<h3>Desvantagens</h3>
+<ul>
+<li>Alto custo computacional;</li>
+<li>Iterações dependentes dificultam a paralelização;</li>
+<li>Não interpretável;</li>
+</ul>
+</div>
+<div id="tuning" class="section level3 fullwidth">
+<h3>Tuning</h3>
+<p>Algumas variações do Gradient Boosting incluem:</p>
+<ul>
+<li>Sortear um subconjunto de tamanho <span class="math inline">\(N&#39; &lt; N\)</span> da amostra de treino para o ajuste do preditor a cada passo.</li>
+<li>Encolher os preditores por algum valor <span class="math inline">\(\alpha &lt; 1\)</span>, isto é, substituir o passo de atualização por <span class="math display">\[\displaystyle H_{m}(x)=H_{m-1}(x)+\alpha \gamma_m h_m(x).\]</span></li>
+<li>Utilizar diferentes números de nós quando o preditor fraco utlizado é uma Árvore de Regressão e Classificação.</li>
 </ul>
 </div>
 </div>
-<div id="reproducible-research" class="section level2">
-<h2>Reproducible research</h2>
-<div id="directly-include-plots" class="section level3">
-<h3>Directly include plots</h3>
-<p><img src="poster_boosting_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 </div>
-<div id="directly-include-stats" class="section level3">
-<h3>Directly include stats</h3>
-<pre><code>##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00</code></pre>
-</div>
-</div>
-</div>
-<div id="section-2" class="section level1 col-2">
+<div id="section-8" class="section level1 col-2">
 <h1></h1>
-<div id="customizable-themes" class="section level2">
-<h2>Customizable themes</h2>
-<p>Note the features for theming. If you had a special class attached to the .level1 or .slides/theme, you could use a general descendent selector to automatically get theming support, then break up these details into separate theme files.</p>
-</div>
-</div>
-<div id="section-3" class="section level1 col-4">
-<h1></h1>
-<div id="default-theme" class="section level2">
-<h2>Default theme</h2>
-<p>This is an example of the default theme.</p>
-</div>
-</div>
-<div id="section-4" class="section level1 col-4 theme-minimalist">
-<h1></h1>
-<div id="minimalist-theme" class="section level2">
-<h2>Minimalist theme</h2>
-<p>This is an example of the minimalist theme.</p>
-</div>
-</div>
-<div id="section-5" class="section level1 col-2">
-<h1></h1>
-<div id="see-also" class="section level2">
-<h2>See also</h2>
-<ul>
-<li>tikzposter latex template, and its example themes for inspiration <a href="https://bitbucket.org/surmann/tikzposter/downloads/" class="uri">https://bitbucket.org/surmann/tikzposter/downloads/</a></li>
-<li><a href="https://gist.github.com/Pakillo/4854e5d760351206084f6be8abe476b2">Other R markdown templates</a> with their advantages/disadvantages (pdf compatibility, consistent syntax with flexdashboard, etc.)</li>
-</ul>
-</div>
-<div id="references" class="section level2">
-<h2>References</h2>
-<div id="refs" class="references">
+<div id="uma-aplicacao" class="section level2">
+<h2>Uma aplicação</h2>
+<div id="conjunto-de-dados-mnist" class="section level3">
+<h3>Conjunto de dados MNIST</h3>
+<div class="figure">
+<img src="mnist.jpg" />
 
 </div>
+</div>
+<div id="resultados" class="section level3">
+<h3>Resultados</h3>
+<ul>
+<li>Esperando o Kernel do Kaggle terminar de rodar.</li>
+<li>Feito com h2o.</li>
+<li>Deve chegar a 97,12%</li>
+</ul>
+<p><img src="frame.png" class="qrcode"/></p>
+</div>
+</div>
+</div>
+<div id="section-9" class="section level1 col-2">
+<h1></h1>
+<div id="referencias" class="section level2">
+<h2>Referências</h2>
 </div>
 </div>
 </div>
