@@ -1,4 +1,11 @@
 # mi422boosting
-Trabalho Final de MI422
+Trabalho Final de MI422 - Boosting
 
-Criacao do Poster
+Neste repositorio estão incluídos
+
+- Relatório com detalhes da teoria;
+- Slides da apresentação para turma;
+- Pôster apresentado no saguão do IMECC;
+- Códigos
+
+utilizados no projeto final de MI422.
