@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="drposter_files//drposter.css" />
     <link rel="stylesheet" href="custom.css"/>
     <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+    <script src="poster_boosting_files/htmlwidgets-1.2/htmlwidgets.js"></script>
+    <script src="poster_boosting_files/viz-0.3/viz.js"></script>
+    <link href="poster_boosting_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="poster_boosting_files/grViz-binding-1.0.0/grViz.js"></script>
 </head>
 <body>
 <div class="slides ">
@@ -23,9 +27,9 @@
 <div id="o-conceito-de-boosting" class="section level2">
 <h2>O Conceito de Boosting</h2>
 <ul>
-<li>Combinar um grande número de preditores com baixo poder de predição para compor um bom preditor.</li>
+<li>Combinar um grande número de preditores simples para compor um bom preditor.</li>
 <li>Os preditores (árvores de decisão) são ajustados sequencialmente de maneira a melhorar o desempenho do anterior, ao compreender melhor as regiões com altas taxas de erro.</li>
-<li>Se pensarmos que cada preditor tem um “voto” na decisão final, o método nos fornece um comitê em que a decisão final é a ponderação de todos os votos. Aqueles que têm grande convicção têm mais poder na decisão.</li>
+<li>Se pensarmos que cada árvore tem um “voto” na decisão final, o método nos fornece um comitê em que a decisão final é a ponderação de todos os votos. Aqueles que têm grande convicção têm mais poder na decisão.</li>
 </ul>
 </div>
 <div id="visualizacao" class="section level2">
@@ -58,11 +62,17 @@
 <p><img src="poster_boosting_files/figure-html/unnamed-chunk-6-1.png" width="768" /></p>
 </div>
 </div>
+<div id="visualizacao-das-arvores" class="section level2">
+<h2>Visualização das Árvores</h2>
+<div id="htmlwidget-c971e33eb32de81eccf5" style="width:768px;height:480px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c971e33eb32de81eccf5">{"x":{"diagram":"digraph {\n\ngraph [layout = \"dot\",\n       rankdir = \"LR\"]\n\nnode [color = \"DimGray\",\n      style = \"filled\",\n      fontname = \"Helvetica\"]\n\nedge [color = \"DimGray\",\n     arrowsize = \"1.5\",\n     arrowhead = \"vee\",\n     fontname = \"Helvetica\"]\n\n  \"1\" [label = \"Tree 2\nx\nCover: 100\nGain: 18.9312191\", shape = \"rectangle\", fontcolor = \"black\", fillcolor = \"Beige\"] \n  \"2\" [label = \"Leaf\nCover: 10\nValue: -1.2269299\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"Khaki\"] \n  \"3\" [label = \"Leaf\nCover: 90\nValue: 0.161980018\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"Khaki\"] \n  \"4\" [label = \"Tree 1\nx\nCover: 100\nGain: 51.1719666\", shape = \"rectangle\", fontcolor = \"black\", fillcolor = \"Beige\"] \n  \"5\" [label = \"Leaf\nCover: 81\nValue: -0.270081967\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"Khaki\"] \n  \"6\" [label = \"Leaf\nCover: 19\nValue: 1.51402736\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"Khaki\"] \n  \"7\" [label = \"Tree 0\nx\nCover: 100\nGain: 602.70282\", shape = \"rectangle\", fontcolor = \"black\", fillcolor = \"Beige\"] \n  \"8\" [label = \"Leaf\nCover: 50\nValue: 1.60264528\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"Khaki\"] \n  \"9\" [label = \"Leaf\nCover: 50\nValue: 6.53117895\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"Khaki\"] \n\"1\"->\"2\" [label = \"< 0.617134809\", style = \"bold\"] \n\"4\"->\"5\" [label = \"< 4.27153492\", style = \"bold\"] \n\"7\"->\"8\" [label = \"< 2.44420552\", style = \"bold\"] \n\"1\"->\"3\" [style = \"bold\", style = \"solid\"] \n\"4\"->\"6\" [style = \"solid\", style = \"solid\"] \n\"7\"->\"9\" [style = \"solid\", style = \"solid\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
 </div>
 <div id="section-7" class="section level1 col-2">
 <h1></h1>
 <div id="gradient-boosting" class="section level2">
 <h2>Gradient Boosting</h2>
+<p>Direção fornecida da solução pelo método do Gradiente e sua conexão com os resíduos fornecem a intuição e a engrenagem por detrás do método.</p>
 <div id="algoritmo" class="section level3">
 <h3>Algoritmo</h3>
 <ul>
@@ -87,6 +97,7 @@
 <li>Alto poder de preditivo (ganhador de vários concursos recentes)</li>
 <li>Otimização direta da função perda (regressão, classificação, regressão quantílica, modelo de cox, ranqueamento, etc…).</li>
 <li>Não requer nenhum tipo de pré-processamento.</li>
+<li>Pode ser paralelizado;</li>
 </ul>
 </div>
 <div id="desvantagens" class="section level3">
@@ -103,7 +114,7 @@
 <ul>
 <li>Subamostragem: Sortear um subconjunto de tamanho <span class="math inline">\(N&#39; &lt; N\)</span> da amostra de treino para o ajuste do preditor a cada passo.</li>
 <li>Penalização: Encolher os preditores por algum valor <span class="math inline">\(\alpha &lt; 1\)</span>, isto é, substituir o passo de atualização por <span class="math display">\[\displaystyle H_{m}(x)=H_{m-1}(x)+\alpha \gamma_m h_m(x).\]</span></li>
-<li>Utilizar diferentes números de nós terminais para as árvores.</li>
+<li>Número de nós terminais: Utilizar diferentes números de nós terminais para as árvores.</li>
 </ul>
 </div>
 <div id="implementacao" class="section level3 fullwidth">
@@ -147,7 +158,8 @@
 <h2>Conclusão</h2>
 <ul>
 <li>Boosting produz preditores muito eficazes;</li>
-<li>Apesar de incluir diversos parâmetros de refinamento, exceto em casos específicos, muitos não tem grande efeito na qualidade final das predições; Por outro lado, podem reduzir o custo computacional ou alterar a quantidade necessária de passos até produzir um bom preditor;</li>
+<li>Extretamente versátil;</li>
+<li>Apesar de incluir diversos parâmetros de refinamento, exceto em casos específicos, muitos não tem grande efeito na qualidade final das predições; Por outro lado, podem drasticamente reduzir o custo computacional ou alterar a quantidade necessária de passos até produzir um bom preditor;</li>
 <li>A forma com que o algoritmo é construído causa a impressão de que o overfitting deve ocorrer, mas a quantidade necessária de passos para que ele de fato ocorra é muito grande.</li>
 </ul>
 </div>
