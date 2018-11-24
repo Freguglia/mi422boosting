@@ -14,7 +14,7 @@ references:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, cache = TRUE, message = FALSE,
-                      fig.width = 8)  # Hide code by default. Can override chunk-by-chunk
+                      fig.width = 7)  # Hide code by default. Can override chunk-by-chunk
 library(tidyverse)
 library(rpart)
 library(caret)
@@ -55,7 +55,8 @@ ggplot(df, aes(x = x, y = y)) +
   theme(plot.title = element_text(size=22, hjust = 0.5))
 ```
 
-###
+### Resíduos
+
 ```{r}
 df2 <- df;
 df2$y <- residuals(m1)
@@ -167,22 +168,6 @@ ggplot(df5, aes(x = x, y = y)) +
   theme(plot.title = element_text(size=22, hjust = 0.5))
 ```
 
-## Visualização das Árvores
-
-```{r}
-m_plot <-  train(y~x,df, 
-             method = "xgbTree", 
-             tuneGrid = data.frame(nrounds = c(3),
-                                   max_depth = c(1),
-                                   eta = c(1),
-                                   gamma = 0,
-                                   colsample_bytree = 1,
-                                   subsample = 1,
-                                   min_child_weight = 1))
-
-xgboost::xgb.plot.tree(model = m_plot$finalModel)
-```
-
 
 # {.col-2}
 
@@ -208,14 +193,13 @@ $$\displaystyle H_{m}(x)=H_{m-1}(x)+\gamma_m h_m(x);$$
 
 ### Vantagens
 * Alto poder de preditivo (ganhador de vários concursos recentes)
-* Otimização direta da função perda (regressão, classificação, regressão quantílica, modelo de cox, ranqueamento, etc...).
-* Não requer nenhum tipo de pré-processamento.
-* Pode ser paralelizado;
+* Otimização direta da função perda (regressão, classificação, regressão quantílica, Modelo de Cox, etc...).
+* Não requer nenhum tipo de pré-processamento e pode ser paralelizado.
 
 ### Desvantagens
 * Alto custo computacional;
 * Pode ser muito sensível a dados muito ruidosos;
-* Sequer refinamento cuidadoso;
+* Requer refinamento cuidadoso;
 
 
 ### Refinamento {.fullwidth}
@@ -228,8 +212,6 @@ Principais refinamentos do Gradient Boosting incluem:
  
  
 ### Implementação {.fullwidth}
-Algumas das principais implementações do algoritmo de Gradient Boosting em `R` são:
-
 * Pacote `gbm`: Generalized Boosted Regression Models;
 * Pacote `xgboost`: Extreme Gradient Boosting;
 * Plataforma `h2o`: www.h2o.ai;
@@ -244,12 +226,12 @@ Algumas das principais implementações do algoritmo de Gradient Boosting em `R`
 
 ![](mnist.jpg)
 
+* 60000 Imagens 28x28 pixels de dígitos escritos a mão. Classificação dos dígitos.
+
  
 ### Resultados
 
 
-* 60000 Imagens 28x28 pixels de dígitos escritos a mão.
-* Classificação dos dígitos (107 categorias) utilizando os valores dos 784 pixels como covariáveis.
 * Acurácia de 97.33% no conjunto de teste da competição no Kaggle, utilizando Gradient Boosting, com taxa de aprendizado $\alpha = 0.08$, árvores com 7 nós nos classificadores e 600 passos de Boosting, **sem nenhum tipo de pré-processamento**.
 * Implementação em `R` utilizando o framework `h2o` e resultados no Kaggle disponíveis no QR-code.
 
