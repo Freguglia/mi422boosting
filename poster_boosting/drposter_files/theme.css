@@ -1,12 +1,12 @@
 /* Overall colors, etc., for the poster, powered by CSS variables and the cascade */
 
 :root {
-	--header-color: #505BEE;
+	--header-color: #0059b3;
 }
 
 /******** Default theme, including the background gradients ********/
 :root {
-	--other-color-for-h2-gradient: #0E1EFD;
+	--other-color-for-h2-gradient: #66b3ff;
 }
 
 .level2 h2 {

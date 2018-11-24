@@ -30,21 +30,24 @@
 </div>
 <div id="visualizacao" class="section level2">
 <h2>Visualização</h2>
-<div id="section-1" class="section level3">
-<h3></h3>
+<div id="primeiras-iteracoes" class="section level3">
+<h3>Primeiras iterações</h3>
 <p><img src="poster_boosting_files/figure-html/unnamed-chunk-1-1.png" width="768" /></p>
 </div>
-<div id="section-2" class="section level3">
+<div id="section-1" class="section level3">
 <h3></h3>
 <p><img src="poster_boosting_files/figure-html/unnamed-chunk-2-1.png" width="768" /></p>
 </div>
-<div id="section-3" class="section level3">
+<div id="section-2" class="section level3">
 <h3></h3>
 <p><img src="poster_boosting_files/figure-html/unnamed-chunk-3-1.png" width="768" /></p>
 </div>
-<div id="section-4" class="section level3">
+<div id="section-3" class="section level3">
 <h3></h3>
 <p><img src="poster_boosting_files/figure-html/unnamed-chunk-4-1.png" width="768" /></p>
+</div>
+<div id="section-4" class="section level3 fullwidth">
+<h3>…</h3>
 </div>
 <div id="section-5" class="section level3">
 <h3></h3>
@@ -83,13 +86,14 @@
 <ul>
 <li>Garante, ao menos na amostra de treino, um desempenho melhor a cada passo.</li>
 <li>Funciona para Regressão e classificação com adaptação na função perda.</li>
+<li>Não requer nenhum tipo de pré-processamento.</li>
 </ul>
 </div>
 <div id="desvantagens" class="section level3">
 <h3>Desvantagens</h3>
 <ul>
 <li>Alto custo computacional;</li>
-<li>Iterações dependentes dificultam a paralelização;</li>
+<li>É possível (embora pouco provável) ocorrer overfitting;</li>
 <li>Não interpretável;</li>
 </ul>
 </div>
@@ -100,6 +104,15 @@
 <li>Sortear um subconjunto de tamanho <span class="math inline">\(N&#39; &lt; N\)</span> da amostra de treino para o ajuste do preditor a cada passo.</li>
 <li>Encolher os preditores por algum valor <span class="math inline">\(\alpha &lt; 1\)</span>, isto é, substituir o passo de atualização por <span class="math display">\[\displaystyle H_{m}(x)=H_{m-1}(x)+\alpha \gamma_m h_m(x).\]</span></li>
 <li>Utilizar diferentes números de nós quando o preditor fraco utlizado é uma Árvore de Regressão e Classificação.</li>
+</ul>
+</div>
+<div id="implementacao" class="section level3 fullwidth">
+<h3>Implementação</h3>
+<p>Algumas das principais implementações do algoritmo de Gradient Boosting em <code>R</code> são:</p>
+<ul>
+<li>Pacote <code>gbm</code>: Generalized Boosted Regression Models;</li>
+<li>Pacote <code>xgboost</code>: Extreme Gradient Boosting;</li>
+<li>Plataforma <code>h2o</code>: www.h2o.ai</li>
 </ul>
 </div>
 </div>
@@ -118,9 +131,10 @@
 <div id="resultados" class="section level3">
 <h3>Resultados</h3>
 <ul>
-<li>Esperando o Kernel do Kaggle terminar de rodar.</li>
-<li>Feito com h2o.</li>
-<li>Deve chegar a 97,12%</li>
+<li>60000 Imagens 28x28 pixels de dígitos escritos a mão.</li>
+<li>Classificação dos dígitos (10 categorias) utilizando os valores dos 784 pixels como covariáveis.</li>
+<li>Acurácia de 97.33% no conjunto de teste da competição no Kaggle, utilizando Gradient Boosting, com taxa de aprendizado <span class="math inline">\(\alpha = 0.08\)</span>, árvores com 7 nós nos classificadores e 600 passos de Boosting, sem nenhum tipo de pré-processamento.</li>
+<li>Implementação em <code>R</code> utilizando o framework <code>h2o</code> e resultados no Kaggle disponíveis no QR-code.</li>
 </ul>
 <p><img src="frame.png" class="qrcode"/></p>
 </div>
@@ -128,8 +142,22 @@
 </div>
 <div id="section-9" class="section level1 col-2">
 <h1></h1>
+<div id="conclusao" class="section level2">
+<h2>Conclusão</h2>
+<ul>
+<li>Boosting produz classificadores muito eficiêntes;</li>
+<li>Apesar das variações incluirem diversos parâmetros, a variação deles, exceto para casos específicos, não tem grande efeito na qualidade final das predições; Por outro lado, podem reduzir o custo computacional ou alterar a quantidade necessária de passos até produzir um bom preditor;</li>
+<li>A forma com que o algoritmo é construído causa a impressão de que o overfitting deve ocorrer, mas a quantidade necessária de passos para que ele de fato ocorra é muito grande. A visualização exemplifica como os passos tendem a modificar cada vez menos o modelo.</li>
+<li>Por se tratar de modificações sequênciais de um único preditor, não é necessário guardar um grande número de modelos simutaneamente. Por outro lado, isso torna a paralelização mais complicada.</li>
+</ul>
+</div>
 <div id="referencias" class="section level2">
 <h2>Referências</h2>
+<ul>
+<li>Friedman, J. H. (2001), ‘Greedy function approximation: a gradient boosting machine’, Annals of statistics pp. 1189–1232.</li>
+<li>Friedman, J., Hastie, T. &amp; Tibshirani, R. (2001), The elements of statistical learning, Vol. 1, Springer series in statistics New York, NY, USA:.</li>
+<li>Schapire, R. E. (1990), ‘The strenght of weak learnability’, Machine Learning 5, 197–227.</li>
+</ul>
 </div>
 </div>
 </div>

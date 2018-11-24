@@ -31,7 +31,7 @@ library(caret)
 
 ## Visualização
 
-###
+### Primeiras iterações
 ```{r}
 set.seed(5)
 df <- data.frame(x = runif(100, 0, 5)) %>% mutate(y = rnorm(100, mean = 1.8*x))
@@ -83,6 +83,8 @@ m4 <-  train(y~x,df4, method = "xgbTree", tuneGrid = data.frame(nrounds = c(1),
 ggplot(df4, aes(x = x, y = y)) + geom_point(color = "orange", size = 3, alpha = 0.5) + geom_line(aes(x = x, y = predict(m4)), color = "red") + theme_bw() + ggtitle("Resíduos H2 e h3") + theme(plot.title = element_text(size=22, hjust = 0.5))
 ```
 
+### ... {.fullwidth}
+
 ###
 ```{r}
 m5 <- train(y~x,df, method = "xgbTree", tuneGrid = data.frame(nrounds = c(20),
@@ -130,10 +132,11 @@ $$\displaystyle H_{m}(x)=H_{m-1}(x)+\gamma_m h_m(x);$$
 ### Vantagens
 * Garante, ao menos na amostra de treino, um desempenho melhor a cada passo.
 * Funciona para Regressão e classificação com adaptação na função perda.
+* Não requer nenhum tipo de pré-processamento.
 
 ### Desvantagens
 * Alto custo computacional;
-* Iterações dependentes dificultam a paralelização;
+* É possível (embora pouco provável) ocorrer overfitting;
 * Não interpretável;
 
 ### Tuning {.fullwidth}
@@ -143,7 +146,13 @@ Algumas variações do Gradient Boosting incluem:
  * Encolher os preditores por algum valor $\alpha < 1$, isto é, substituir o passo de atualização por 
  $$\displaystyle H_{m}(x)=H_{m-1}(x)+\alpha \gamma_m h_m(x).$$
  * Utilizar diferentes números de nós quando o preditor fraco utlizado é uma Árvore de Regressão e Classificação.
+ 
+### Implementação {.fullwidth}
+Algumas das principais implementações do algoritmo de Gradient Boosting em `R` são:
 
+* Pacote `gbm`: Generalized Boosted Regression Models;
+* Pacote `xgboost`: Extreme Gradient Boosting;
+* Plataforma `h2o`: www.h2o.ai 
 
 
 # {.col-2}
@@ -158,12 +167,26 @@ Algumas variações do Gradient Boosting incluem:
 ### Resultados
 
 
-* Imagens 32x32 pixels
-* Feito com h2o.
-* Deve chegar a 97,12%
+* 60000 Imagens 28x28 pixels de dígitos escritos a mão.
+* Classificação dos dígitos (10 categorias) utilizando os valores dos 784 pixels como covariáveis.
+* Acurácia de 97.33% no conjunto de teste da competição no Kaggle, utilizando Gradient Boosting, com taxa de aprendizado $\alpha = 0.08$, árvores com 7 nós nos classificadores e 600 passos de Boosting, sem nenhum tipo de pré-processamento.
+* Implementação em `R` utilizando o framework `h2o` e resultados no Kaggle disponíveis no QR-code.
 
 <img src="frame.png" class="qrcode"/>
 
 # {.col-2}
 
+## Conclusão
+
+* Boosting produz classificadores muito eficiêntes;
+* Apesar das variações incluirem diversos parâmetros, a variação deles, exceto para casos específicos, não tem grande efeito na qualidade final das predições; Por outro lado, podem reduzir o custo computacional ou alterar a quantidade necessária de passos até produzir um bom preditor;
+* A forma com que o algoritmo é construído causa a impressão de que o overfitting deve ocorrer, mas a quantidade necessária de passos para que ele de fato ocorra é muito grande. A visualização exemplifica como os passos tendem a modificar cada vez menos o modelo.
+* Por se tratar de modificações sequênciais de um único preditor, não é necessário guardar um grande número de modelos simutaneamente. Por outro lado, isso torna a paralelização mais complicada.
+
 ## Referências
+
+* Friedman, J. H. (2001), ‘Greedy function approximation: a gradient boosting machine’,
+Annals of statistics pp. 1189–1232.
+* Friedman, J., Hastie, T. & Tibshirani, R. (2001), The elements of statistical learning, Vol. 1,
+Springer series in statistics New York, NY, USA:.
+* Schapire, R. E. (1990), ‘The strenght of weak learnability’, Machine Learning 5, 197–227.
