@@ -28,13 +28,17 @@ output: rticles::asa_article
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo=FALSE, 
+                      warning=FALSE, 
+                      message=FALSE,
+                      eval = FALSE, # soh para compilar o texto rapido
+                      include = FALSE) 
 # Possivelmente ajustar as figuras aqui direto.
 ```
 
 ```{r load_pkgs}
 library(tidyverse)
-library(caret)
+library(caret)TRUE
 library(doMC)
 require(xgboost)
 ```
@@ -42,8 +46,8 @@ require(xgboost)
 ```{r load_mnist, cache = TRUE}
 if (file.exists("mnist_train.csv")){
   MNIST <- read_csv("mnist_train.csv", col_names = FALSE)
-} else if (file.exists("../mnist_train.csv")) {
-  MNIST <- read_csv("../mnist_train.csv", col_names = FALSE)
+} else if (file.exists("../mnist_train.csv.zip")) {
+  MNIST <- read_csv("../mnist_train.csv.zip", col_names = FALSE)
 } else {
   stop("Não achei o arquivo do arquivo :( Precisa colocar o arquivo que a gente usou pros labs 'mnist_train.csv' na pasta.")
 }
@@ -61,7 +65,7 @@ cols_in <- as.numeric(c(1,which(colvars > 10)))
 
 ```
 
-```{r ajuste_gbm, include = FALSE, cache = TRUE, eval = FALSE}
+```{r ajuste_gbm, cache = TRUE, eval = FALSE}
 registerDoMC(3)
 set.seed(1)
 tc <- trainControl(number = 1, repeats = 1)
@@ -111,19 +115,33 @@ A principal diferença entre os diferentes algoritmos de Boosting propostos est�
   
 # Metodologia \label{sec_metodologia}
 
-Do ponto de vista da teoria de decisão, escolher o melhor preditor significa escolher a função $G^*$ que minimiza a função risco, definida como o valor esperado da função de perda $L(\cdot,\cdot)$.
+Em problemas de regressão, escolher o melhor preditor significa estimar uma função $f^*$ que minimiza o risco, definido como o valor esperado da função de perda $L(\cdot,\cdot)$, ou seja,
 
 \begin{equation}
-G^* = \arg \min_{G \in \mathcal{G}} \mathbb{E}L(Y,G(\mathbf{X}))
+f^* = \arg \min_{f \in \mathcal{F}} \mathbb{E}_{Y|x} \big[ L(Y,f(x)) | x \big ].
+\label{eq:general_argmin}
 \end{equation}
 
-Em particular, em um procedimento de Boosting, procuramos pela $G^*$ em um espaço de funções $\mathcal{G}$ formado por combinações de preditores fracos $h_m$ de alguma forma pré-definida, por exemplo, árvores de decisão com um número fixo (e, em geral, pequeno) de nós,
+Note que o risco para um preditor específico $f$ é desconhecido, uma vez que não assumimos nenhuma distribuição, o que impossibilita o cálculo do valor esperado da função perda para esse preditor. Uma boa estratégia para criação da função de predição $f \in \mathcal{F}$ consiste em escolher preditores de forma a minimizar o risco empírico.
 
 \begin{equation}
-\mathcal{G} = \{G: G(x) = \sum_{i = 1}^M \alpha_i h_m(x) \}.
+\begin{aligned}
+& f^* = \arg \min_{f \in \mathcal{F}} \sum_{i=1}^N  L(y_i,f(x_i)) \\
+& \text{sujeito à que f seja árvore}
+\end{aligned}
+\label{eq:emp_general_argmin}
 \end{equation}
 
-Note que o risco para um preditor específico $G$ é desconhecido, uma vez que não assumimos nenhuma distribuição, impossibilitando o calculo do valor esperado da função perda para esse preditor. Uma boa estratégia para criação de uma função de predição $G \in \mathcal{G}$ consiste então em escolher iterativamente os preditores $h_m$ de forma a reduzir o risco (empírico) a cada passo. Um método muito comum para atingir pontos de mínimo em procedimentos iterativos é mover a solução na direção contrária ao gradiente em cada iteração (algoritmo de Newton-Raphson e Backpropagation são exemplos parecidos) e nisso é baseado o algoritmo chamado Gradient Boosting.
+Uma forma de resolver o problema \ref{eq:emp_general_argmin} é via utilização de algorítmos numéricos. Gradiente descendente (citar watkins), por exemplo, é uma estratégia habitualmente utilizada, que levaria ao algorítmo
+
+\begin{equation}
+f^{(i+1)} = f^{(i)} + \sum_{i=1}^N \nabla_f L(y_i,f(x_i))
+\end{equation}
+
+Entretanto (@boosting2001) cita que simplesmente utilizar isto teria efeitos catastróficos no modelo preditivo. Primeiro porquê só são levados em consideração as observações que temos (i.e, não existe nenhuma intenção de extrapolar poder preditivo, como por exemplo a separação entre teste e treinamento ou validação cruzada faria), segundo que não é levado em consideração à relação entre as covariáveis. Para contornar este problema, o autor sugere utilizar árvores de decisão de uma forma muito inteligente.
+
+ Desta forma Boosting busca resolver o problema de otimização \ref{eq:general_argmin} sujeito à restrição de que $f^*$ sejam árvores de decisão (i.e, $\mathcal{F}$ é o conjunto de todas as possíveis árvores). Formalmente, uma árvore de decisão pode ser escrita como 
+
  
 ## Gradient Boosting
 
