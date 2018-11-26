@@ -203,8 +203,6 @@ $$\displaystyle H_{m}(x)=H_{m-1}(x)+\gamma_m h_m(x);$$
 
 
 ### Refinamento {.fullwidth}
-Principais refinamentos do Gradient Boosting incluem:
-
  * Subamostragem: Sortear um subconjunto de tamanho $N' < N$ da amostra de treino para o ajuste do preditor a cada passo.
  * Penalização: Encolher os preditores por algum valor $\alpha < 1$, isto é, substituir o passo de atualização por 
  $$\displaystyle H_{m}(x)=H_{m-1}(x)+\alpha \gamma_m h_m(x).$$
@@ -252,4 +250,3 @@ Principais refinamentos do Gradient Boosting incluem:
 Annals of statistics pp. 1189–1232.
 * Friedman, J., Hastie, T. & Tibshirani, R. (2001), The elements of statistical learning, Vol. 1,
 Springer series in statistics New York, NY, USA:.
-* Schapire, R. E. (1990), ‘The strenght of weak learnability’, Machine Learning 5, 197–227.
