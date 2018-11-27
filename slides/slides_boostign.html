@@ -452,31 +452,80 @@ document.getElementsByTagName('head')[0].appendChild(style);
 </section>
 
 <section id="ideia-basica" class="slide level2">
-<h2>Idéia Básica</h2>
+<h2>Ideia Básica</h2>
 <ul>
-<li>Ajustar um monte de árvores, uma atrás da outra</li>
+<li>Ajustar um monte de árvores sequencialmente.</li>
 <li>Onde? Nos resíduos!!!</li>
+<li>Melhorar o desepenho a cada passo.</li>
 </ul>
 </section>
-<section id="regiao-de-decisao" class="slide level2">
-<h2>Região de Decisão</h2>
+<section id="pseudo-algoritmo" class="slide level2">
+<h2>Pseudo-Algoritmo</h2>
+<ul>
+<li>Começar do preditor constante</li>
+<li>Para <span class="math inline">\(m = 1, \dots, M\)</span></li>
+</ul>
+<ol type="1">
+<li>Calcula os pseudo-resíduos do preditor atual;</li>
+<li>Ajusta uma nova árvore nos pseudo-resíduos.</li>
+<li>Calcula o “peso” da nova árvore</li>
+<li>Atualiza o preditor somando a nova árvore ponderada</li>
+</ol>
+</section>
+<section id="ilustracao---classificacao" class="slide level2">
+<h2>Ilustração - Classificação</h2>
 <p><img src="animation.gif" /></p>
 </section>
-<section id="por-que-usar" class="slide level2">
-<h2>Por quê usar?</h2>
+<section id="ilustracao---regressao" class="slide level2">
+<h2>Ilustração - Regressão</h2>
+<p><img src="animation_reg.gif" /></p>
+</section>
+<section id="vantagens-e-desvantagens" class="slide level2">
+<h2>Vantagens e Desvantagens</h2>
+<p>👍</p>
 <ul>
-<li>Rápido</li>
-<li>Extremamente flexível</li>
-<li>Paralelizado</li>
+<li>Alto poder de preditivo;</li>
+<li>Otimização direta da função perda;</li>
+<li>Não requer pré-processamento.</li>
+</ul>
+<p>👎</p>
+<ul>
+<li>Alto custo computacional;</li>
+<li>Sensível a ruído excessivo;</li>
+<li>Requer refinamento cuidadoso;</li>
 </ul>
 </section>
-<section><section id="section" class="titleslide slide level1"><h1></h1></section><section id="um-bom-motivo" class="slide level2">
-<h2>Um bom motivo</h2>
+<section id="exemplos-de-sucesso" class="slide level2">
+<h2>Exemplos de Sucesso</h2>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
 <p><img src="images/kdd_xgb.png" /></p>
-</section><section id="section-1" class="slide level2">
+</section>
+<section id="section-1" class="slide level2">
 <h2></h2>
 <p><img src="images/medium_xgb.png" /></p>
-</section></section>
+</section>
+<section id="section-2" class="slide level2">
+<h2></h2>
+<p><img src="images/xgboost_github.png" /></p>
+</section>
+<section id="implementacoes" class="slide level2">
+<h2>Implementações</h2>
+<ul>
+<li>Pacote gbm: Generalized Boosted Regression Models;</li>
+<li>Pacote xgboost: Extreme Gradient Boosting;</li>
+<li>Plataforma h2o: www.h2o.ai;</li>
+<li>Pacote LightGBM: Implementação da Microsoft para gbm;</li>
+</ul>
+</section>
+<section id="section-3" class="slide level2">
+<h2></h2>
+<ul>
+<li>Conteúdo disponível em: <a href="https://github.com/Freguglia/mi422boosting" class="uri">https://github.com/Freguglia/mi422boosting</a></li>
+</ul>
+<p><img src="tela_github.png" /></p>
+</section>
     </div>
   </div>
 
