@@ -106,3 +106,7 @@ saveGIF(ani.replay(), "animation_reg.gif")
 * Conteúdo disponível em: https://github.com/Freguglia/mi422boosting
 
 ![](tela_github.png)
+
+## Aplicação MNIST com h2o
+
+![](kaggle.png)
