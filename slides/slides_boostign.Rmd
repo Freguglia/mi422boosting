@@ -100,3 +100,9 @@ saveGIF(ani.replay(), "animation_reg.gif")
 * Pacote xgboost: Extreme Gradient Boosting;
 * Plataforma h2o: www.h2o.ai;
 * Pacote LightGBM: Implementação da Microsoft para gbm;
+
+## 
+
+* Conteúdo disponível em: https://github.com/Freguglia/mi422boosting
+
+![](tela_github.png)
