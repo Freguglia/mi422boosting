@@ -28,13 +28,17 @@ output: rticles::asa_article
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo=FALSE, 
+                      warning=FALSE, 
+                      message=FALSE,
+                      eval = FALSE, # soh para compilar o texto rapido
+                      include = FALSE) 
 # Possivelmente ajustar as figuras aqui direto.
 ```
 
 ```{r load_pkgs}
 library(tidyverse)
-library(caret)
+library(caret)TRUE
 library(doMC)
 require(xgboost)
 ```
@@ -42,8 +46,8 @@ require(xgboost)
 ```{r load_mnist, cache = TRUE}
 if (file.exists("mnist_train.csv")){
   MNIST <- read_csv("mnist_train.csv", col_names = FALSE)
-} else if (file.exists("../mnist_train.csv")) {
-  MNIST <- read_csv("../mnist_train.csv", col_names = FALSE)
+} else if (file.exists("../mnist_train.csv.zip")) {
+  MNIST <- read_csv("../mnist_train.csv.zip", col_names = FALSE)
 } else {
   stop("Não achei o arquivo do arquivo :( Precisa colocar o arquivo que a gente usou pros labs 'mnist_train.csv' na pasta.")
 }
@@ -61,7 +65,7 @@ cols_in <- as.numeric(c(1,which(colvars > 10)))
 
 ```
 
-```{r ajuste_gbm, include = FALSE, cache = TRUE, eval = FALSE}
+```{r ajuste_gbm, cache = TRUE, eval = FALSE}
 registerDoMC(3)
 set.seed(1)
 tc <- trainControl(number = 1, repeats = 1)
@@ -110,42 +114,146 @@ Embora o AdaBoost seja um bom ponto de início para entender o conceito de Boost
 A principal diferença entre os diferentes algoritmos de Boosting propostos está na maneira com que os a ponderação dos dados é feita em cada passo. Nesse trabalho, por apresentar uma forma mais geral, será considerado o algoritmo Gradient Boosting, que pode lidar com todos os tipos de problemas de predição com a devida escolha da função perda a ser minimizada. A teoria que o fundamenta e sua descrição detalhada são apresentadas na Seção \ref{sec_metodologia}. O método é então aplicado ao conjunto de dados MNIST, descrito na Seção \ref{sec_dados} e os resultados são mostrados na Seção \ref{sec_apli}.
   
 # Metodologia \label{sec_metodologia}
+## Contexto e Visão Geral
 
-Do ponto de vista da teoria de decisão, escolher o melhor preditor significa escolher a função $G^*$ que minimiza a função risco, definida como o valor esperado da função de perda $L(\cdot,\cdot)$.
-
-\begin{equation}
-G^* = \arg \min_{G \in \mathcal{G}} \mathbb{E}L(Y,G(\mathbf{X}))
-\end{equation}
-
-Em particular, em um procedimento de Boosting, procuramos pela $G^*$ em um espaço de funções $\mathcal{G}$ formado por combinações de preditores fracos $h_m$ de alguma forma pré-definida, por exemplo, árvores de decisão com um número fixo (e, em geral, pequeno) de nós,
+Em problemas de regressão, escolher o melhor preditor significa estimar uma função $f^*$ que minimiza o risco, definido como o valor esperado da função de perda $L(\cdot,\cdot)$, ou seja,
 
 \begin{equation}
-\mathcal{G} = \{G: G(x) = \sum_{i = 1}^M \alpha_i h_m(x) \}.
+f^* = \arg \min_{f \in \mathcal{F}} \mathbb{E}_{Y|x} \big[ L(Y,f(x)) | x \big ].
+\label{eq:general_argmin}
 \end{equation}
 
-Note que o risco para um preditor específico $G$ é desconhecido, uma vez que não assumimos nenhuma distribuição, impossibilitando o calculo do valor esperado da função perda para esse preditor. Uma boa estratégia para criação de uma função de predição $G \in \mathcal{G}$ consiste então em escolher iterativamente os preditores $h_m$ de forma a reduzir o risco (empírico) a cada passo. Um método muito comum para atingir pontos de mínimo em procedimentos iterativos é mover a solução na direção contrária ao gradiente em cada iteração (algoritmo de Newton-Raphson e Backpropagation são exemplos parecidos) e nisso é baseado o algoritmo chamado Gradient Boosting.
+Note que o risco para um preditor específico $f$ é desconhecido, uma vez que não assumimos nenhuma distribuição, o que impossibilita o cálculo do valor esperado da função perda para esse preditor. Uma boa estratégia para criação da função de predição $f \in \mathcal{F}$ consiste em escolher preditores de forma a minimizar o risco empírico. Isto é,
+
+\begin{equation}
+f^* = \arg \min_{f \in \mathcal{F}} \sum_{i=1}^N  L(y_i,f(x_i)) \\
+\label{eq:general_emp_argmin}
+\end{equation}
+
+Uma forma de resolver o problema \ref{eq:general_emp_argmin} é via utilização de algorítmos numéricos. Gradiente descendente (citar watkins), por exemplo, é uma estratégia habitualmente utilizada, que levaria ao algorítmo
+
+\begin{equation}
+f_m = f_{m-1} - \rho_k \sum_{i=1}^N \nabla_f L(y_i,f(x_i))
+\label{eq:general_emp_grad_argmin}
+\end{equation}
+
+Entretanto (@boosting2001) cita que simplesmente utilizar isto teria efeitos catastróficos no modelo preditivo. Primeiro porquê só são levados em consideração as observações que temos (i.e, não existe nenhuma intenção de extrapolar poder preditivo, como por exemplo a separação entre teste e treinamento ou validação cruzada faria), segundo que não é levado em consideração à relação entre as covariáveis. Para contornar este problema, o autor sugere sequencialmente (de forma aditiva) ajustar uma quantidade m de árvores de decisão aos pseudo-resíduos, obtidos de predições subsequentes\label{inline:context_resid&trees}. Assim, o problema de otimização \ref{eq:general_emp_argmin} se torna
+
+\begin{equation}
+\begin{aligned}
+& f^* = \arg \min_{f \in \mathcal{F}} \sum_{i=1}^N  L(y_i,f(x_i)) \\
+& \text{sujeito à que f seja árvore},
+\end{aligned}
+\label{eq:restricted_emp_argmin}
+\end{equation}
+
+e que oferece como preditor $f_{boost}(x) = \sum_{m=1}^M \text{Árvore}_m$.
+
+## Árvores de decisão
+
+Árvore de decisão é uma técnica que busca criar partições disjuntas $R_j$, $j=1, \dots, J$ em que $\gamma_j$ é uma constante associada à cada partição terminal (@elements). Neste caso, se uma observação $x$ pertence à região $j$, a predição para ela será $\gamma_j$. Formalmente, tal árvore pode ser escrita como
+
+\begin{equation}
+T(x;\Theta) = \sum_{j=1}^J \gamma_j I(x \in R_j)
+\end{equation}
  
+onde $\Theta = \{ R_j,\gamma_j \}$, $j=1, \dots, J$. Bem, se nosso objetivo é usar várias árvores em \ref{eq:restricted_emp_argmin}, precisamos de uma maneira de estimar $\Theta$. Ou seja, na ótica da Teoria de Decisão, para a m-ésima árvore (ou seja, m-ésimo passo) queremos
+
+\begin{equation}
+\hat{\Theta}_m = \arg \min_{\Theta_m} \sum_{i=1}^N L(y_i,f_{m-1}(x_i) + T(x;\Theta)),
+\label{eq:tree_region_argmin}
+\end{equation}
+
+pois como citado anteriormente (\ref{inline:context_resid&trees}) o ajuste é feito de maneira aditiva e nos resíduos. Para isto existem métodos que fornecem as regiões $R_j$, como o Particionamento Recursivo (@elements). Mas agora que conhecemos as regiões $R_j$ da árvore $m$, considere que nos encontramos em uma partição terminal $j$ dela, isto é, $I(x \in R_j) = 1$, $\forall x \in R_j$. Neste caso, o que nos falta é  
+
+\begin{equation}
+\hat{\gamma_{jm}} = \arg \min_{\gamma_{jm}} \sum_{i=1}^N L(y_i,f_{m-1}(x_i) + \gamma_{jm}),
+\label{eq:tree_pred_argmin}
+\end{equation}
+
+que dependerá da função de perda escolhida. @elements fornece uma tabela de soluções analíticas para $\gamma$, de acordo com algumas perdas. Assim, conseguimos obter $\Theta_m$, $\forall m=1, \dots, M$.
+
+## Otimização por Gradiente 
+
+Gradiente Descendente (ou seu irmão, Mais Íngrime Descida) é um método de otimização numérica que busca obter o mínimo de uma função. Sua proposta é começar em um ponto inicial e incrementar a função avaliada naquele na direção oposta ao gradiente, em uma certa "velocidade" $\rho_k$, como em \ref{eq:general_emp_grad_argmin}. 
+
+Entretanto, ao considerar que temos um problema de minimização com restrição o algorítmo torna-se (@elements)
+
+\begin{equation}
+f_m = f_{m-1} - \rho_k \sum_{i=1}^N \big[ \nabla_f L(y_i,f(x_i)) \big]_{f(x_i) = f_{m-1}(x_i)}
+\label{eq:grad_general_problem}
+\end{equation}
+
+onde 
+
+\begin{equation}
+\rho_k = \arg \min_{\rho} L(f_{m-1}(x_i) - \rho \big[ \nabla_f L(y_i,f(x_i)) \big]_{f(x_i) = f_{m-1}(x_i)})
+\label{eq:grad_step_problem}
+\end{equation}
+
 ## Gradient Boosting
 
- - Citar o xgboost, caret.
- 
- \begin{algorithm}[h]
+A direção fornecida da solução pelo método do Gradiente e sua conexão com os resíduos fornecem a intuição e a engrenagem por detrás de Boosting. Boosting é baseado em modelos aditivos, onde sequencialmente se ajustam modelos lineares generalizados nos resíduos. Ou seja, no passo $m$, temos o problema
+
+\begin{equation}
+\min_{\beta_m,\gamma_m} \sum_{i=1}^N L(y_i, f_{m-1}(x_i) + \beta_m b(x_i;\gamma_m))
+\end{equation}
+
+onde $b$ é uma função de base. Se, por exemplo, usamos a perda quadrática o problema torna-se
+
+\begin{equation}
+\min_{\beta_m,\gamma_m} \sum_{i=1}^N (r_{m-1}(x_i) - \beta_m b(x_i;\gamma_m))^2 ,
+\end{equation}
+
+em que $r_{m-1}(x_i) = y_i - f_{m-1}(x_i)$. Ao compararmos a equação acima ao problema de regressão linear simples, $r_{m-1}(x_i)$ toma o papel de $y_i$ e $\beta_m b(x_i;\gamma_m)$, o papel de $\beta x_i$. Portanto, a analogia leva à conclusão de se ajustar uma função de base aos resíduos. Boosting funciona de forma similar, onde $\gamma_m$ torna-se $\Theta_m$.
+
+Se olharmos a equação equação \ref{eq:tree_region_argmin}, a predição da árvore $T(x_i;\Theta)$ é justamente o argumento que fornece o mínimo. Este é o mesmo papel que o valor negativo do gradiente desempenha em \ref{eq:general_emp_argmin}, o que os tornam similares, em certo sentido. Além disso, também existe a semelhança entre \ref{eq:tree_pred_argmin} e \ref{eq:grad_step_problem} (onde a diferença é que, no caso das árvores, a busca pela solução ótima é restrita ao nó terminal).
+
+Para perceber onde tudo se encaixa, vamos voltar ao exemplo da perda quadrática. Na equação \ref{eq:grad_general_problem}, 
+
+$$
+\big[ \nabla_f L(y_i,f(x_i)) \big]_{f(x_i) = f_{m-1}(x_i)} = -2(y_i - f_{m-1}(x_i)) := -g_{im}.
+$$
+
+Isto fornece
+
+\begin{align*}
+\hat{\Theta}_m &= \arg \min_{\Theta_m} \sum_{i=1}^N L(y_i,f_{m-1}(x_i) + T(x;\Theta))  \\
+ &= \arg \min_{\Theta_m} \sum_{i=1}^N (y_i - f_{m-1}(x_i) - T(x;\Theta))^2 \\
+ &= \arg \min_{\Theta_m} \sum_{i=1}^N (-g{im} - T(x;\Theta))^2.
+\end{align*}
+
+De acordo com a analogia anterior para o caso de modelos aditivos, $g_{im}$ aqui tem uma forte conexão com os resíduos (para este exemplo, ele de fato é). Na verdade, ele é chamado de \textit{pseudo-resíduo}, pois para problemas de classificação, os "resíduos" são, na verdade, a margem de classificação (@elements cita como exemplo a perda exponencial e sua interpretação para o algorítmo AdaBoost). Esta é o argumento chave que está por detrás da idéia do Boosting, a conexão entre os pseudo-resíduos e a direção do gradiente. 
+
+Se juntarmos as idéias e formularmos um algorítmo, temos o boosting por gradiente (ou gradient boosting) como feito em @boosting2001. Isto fornece o algorítmo a seguir.
+
+ \begin{algorithm}[H]
+ \caption{Algoritmo Gradient Boosting apresentado em @boosting2001.}
 \Inicio{
-  $(y_i, x_i), i = 1,\dots, N$;\\
+  $(y_i, \textbf{x}_i), i = 1,\dots, N$;\\
   Inicie com o preditor constante $H_0 = \arg \min_c \sum_{i = 1}^N L(y_i,c)$;\\
   \Para{$m = 1,\dots,M$}{
     1. Calcular
-    $$r_{im} = -\left[ \frac{\partial L(y_i, G(x_i))}{\partial }\right]_{G = H_{m-1}};$$\\
-    2. Ajustar um novo preditor fraco $h_m$ ao conjunto de dados $(r_{im},x_i);$\\
-    3. ;\\
-    4. ;
+    $$r_{im} = -\left[ \frac{\partial L(y_i, f(x_i))}{\partial f}\right]_{G = f_{m-1}(x_i)};$$\\
+    2. Ajustar uma nova árvore $f_m$ ao conjunto de dados $(r_{im},\textbf{x}_i)$ com J regiões terminais $R_{jm}, j=1,\dots,J$\\
+    3. Para $j=1,\dots,J$, obtenha
+    $$
+    \hat{\gamma_{jm}} = \arg \min_{\gamma_{jm}} \sum_{i=1}^N L(y_i,f_{m-1}(x_i) + \gamma_{jm});
+    $$\\
+    4. Atualize $f_m (x_i) = f_{m-1} (x_i) + \sum_{j=1}^J \gamma_{jm} I(x_i \in R_{jm})$;
   }
-  Defina o classificador final como 
-  $$G(x) = H_M(x).$$
+  O preditor final é então $f_{boost}(x) = f_M(x)$.
 }
-\caption{Algoritmo Gradient Boosting apresentado em \cite{boosting2001}.}
+
 \label{gradboost_alg}
 \end{algorithm}
+
+
+
+**Importante:** Boosting surgiu para problemas de classificação binária e foi adaptado para regressão e classificação de várias categorias. Para classificação de K classes, para $m=1,\dots ,M$, ajuste K árvores de classificação binária e use uma função perda apropriada, como a softmax ( @boosting2001 ), que é a mais habitual para este tipo de problema.
+
+
+
 
 ## PCA Whitening
 
