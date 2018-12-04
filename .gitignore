@@ -6,3 +6,5 @@ mnist_train.csv
 mnist_train.csv.zip
 artigo/aux/
 artigo/artigo_cache
+fashion-mnist_train.csv
+fashion-mnist_test.csv

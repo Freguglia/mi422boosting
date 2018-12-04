@@ -28,57 +28,83 @@ output: rticles::asa_article
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo=FALSE, 
-                      warning=FALSE, 
-                      message=FALSE,
-                      eval = FALSE, # soh para compilar o texto rapido
-                      include = FALSE) 
-# Possivelmente ajustar as figuras aqui direto.
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE) 
 ```
 
 ```{r load_pkgs}
 library(tidyverse)
-library(caret)TRUE
+library(caret)
 library(doMC)
-require(xgboost)
+library(xgboost)
+library(knitr)
 ```
 
 ```{r load_mnist, cache = TRUE}
-if (file.exists("mnist_train.csv")){
-  MNIST <- read_csv("mnist_train.csv", col_names = FALSE)
-} else if (file.exists("../mnist_train.csv.zip")) {
-  MNIST <- read_csv("../mnist_train.csv.zip", col_names = FALSE)
+if (file.exists("fashion-mnist_train.csv")){
+  treino <- read_csv("fashion-mnist_train.csv", col_names = TRUE)
+  teste <- read_csv("fashion-mnist_test.csv", col_names = TRUE)
+} else if (file.exists("../fashion-mnist_train.csv")) {
+  treino <- read_csv("../fashion-mnist_train.csv", col_names = TRUE)
+   teste <- read_csv("../fashion-mnist_test.csv", col_names = TRUE)
 } else {
-  stop("Não achei o arquivo do arquivo :( Precisa colocar o arquivo que a gente usou pros labs 'mnist_train.csv' na pasta.")
+  stop("Não achei o arquivo do arquivo :( Precisa colocar o arquivo 'fashion-mnist_train.csv' na pasta.")
 }
 
-names(MNIST)[1] <- "Y"
-MNIST$Y <- as.factor(MNIST$Y)
-
-set.seed(1)
-idx_teste <- sample(1:nrow(MNIST), 55000, replace = FALSE)
-treino <- MNIST[-idx_teste, ]
-teste <- MNIST[idx_teste, ]
-
-colvars <- apply(MNIST,2,var)
-cols_in <- as.numeric(c(1,which(colvars > 10)))
+names(treino)[1] <- "Y"
+names(teste)[1] <- "Y"
+treino$Y <- as.factor(treino$Y)
+teste$Y <- as.factor(teste$Y)
+levels(treino$Y) <- c("T-Shirt", "Trouser", "Pullover", "Dress", "Coat", "Sandal", "Shirt", "Sneaker", "Bag", "Ankle Boot")
+levels(teste$Y) <- c("T-Shirt", "Trouser", "Pullover", "Dress", "Coat", "Sandal", "Shirt", "Sneaker", "Bag", "Ankle Boot")
 
 ```
 
+```{r funcoes_vis}
+vis <- function(pixels, classe_real = NULL, classe_pred = NULL){
+  n_roupas <- dim(pixels)[1]
+  px <- unlist(pixels)
+  df <- data.frame(value = as.numeric(px))
+  posicao <- expand.grid(roupa = 1:n_roupas,x = 1:28, y = 1:28)
+  df <- cbind(df, posicao)
+
+  df_labels <- data.frame(roupa = 1:n_roupas)
+  if(!is.null(classe_real)){
+    classe_real <- classe_real %>% unlist() %>% as.character()
+    df_labels$label <- classe_real}
+   if(!is.null(classe_pred)){
+    classe_pred <- classe_pred %>% unlist() %>% as.character()
+    df_labels$pred <- classe_pred}
+  
+  df <- left_join(df, df_labels)
+  
+  p <- df %>% ggplot(aes(x=x, y=y, fill = value, group = roupa)) + geom_tile() + 
+    scale_fill_gradient(low = "white", high = "black") +
+    theme_void() + scale_y_reverse() + guides(fill = FALSE) +
+    facet_wrap(~ roupa)
+  if(!is.null(classe_real)){
+   p <- p + geom_label(aes(x = 14, y = 25, label = label), hjust = 0.5)
+  }
+  if(!is.null(classe_pred)){
+    p <- p + annotate("text", x = 1, y = 12, label = paste0("Predito: ", classe_pred))
+  }
+  return(p)
+}
+```
+
 ```{r ajuste_gbm, cache = TRUE, eval = FALSE}
-registerDoMC(3)
-set.seed(1)
-tc <- trainControl(number = 1, repeats = 1)
-xgb <- train(Y ~ ., data = treino[,cols_in], method = "xgbTree", trControl = tc, 
-             tuneGrid = expand.grid(nrounds = c(600),
+#registerDoMC(3)
+set.seed(3)
+tc <- trainControl(number = 1, repeats = 1, verboseIter = TRUE)
+xgb <- train(Y ~ ., data = treino, method = "xgbTree", trControl = tc, 
+             tuneGrid = expand.grid(nrounds = c(10),
                                    max_depth = c(6),
                                    eta = c(.08),
-                                   gamma = 0,
+                                   gamma = 0.001,
                                    colsample_bytree = 0.8,
                                    subsample = 0.8,
                                    min_child_weight = 1),
              nthread = 1)
-mean(unlist(teste[,1]) == predict(xgb, teste[,cols_in]))
+mean(unlist(teste[,1]) == predict(xgb, teste))
 ```
 
 
@@ -261,16 +287,89 @@ Talvez isso não seja necessário pois habitualmente as arvores nao precisam des
 
 Mas essa secao pode ser util pra fazer comparacao com os outros metodos em que isso serve e melhorar a secao de discussao.
 
-# Dados \label{sec_dados}
+# Conjunto de Dados Fashion-MNIST \label{sec_dados}
 
-Conjunto de dados MNIST.
+  Para uma ilustração do funcionamento do método de Gradient Boosting com dados reais, será considerado o problema de classificação no conjunto de dados Fashion-MNIST. Similar ao popular conjunto de dados MNIST de classificação de dígitos, o Fashion-MNIST também conta com pequenas imagens de 28 por 28 pixels em escala de cinza para classificação de peças de roupa em 10 categorias. São elas:
+  
+  - T-Shirt
 
-- Mostrar alguns números
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "T-Shirt")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Trouser
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Trouser")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Pullover
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Pullover")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Dress
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Dress")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Coat
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Coat")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Shirt
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Shirt")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Sandal
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Sandal")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Sneaker
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Sneaker")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Bag
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Bag")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ - Ankle Boot
+
+```{r, fig.height = 0.5, fig.width=6, cache = TRUE}
+idx <- which(treino$Y == "Ankle Boot")[1:10]
+vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
+```
+
+ Estão disponíveis em https://www.kaggle.com/zalando-research/fashionmnist/home dois conjuntos de dados: Um conjunto de treinamento, contendo 60000 imagens e um conjunto de teste, com 10000 imagens. Tanto o conjunto de treino quanto o de teste estão balanceados com exatamente 10% (6000 e 1000, respecitavamente) observações de cada categoria. Cada pixel da imagem é considerado uma variável preditora, totalizando $28 \times 28 = 784$. Portanto, temos um total de $n = 60000$ observações e $p = 784$. 
+ 
+ A priori, parece existir um grande potencial de confundimento entre algumas categorias. Por exemplo, \textit{Coat, Shirt, Dress} e \textit{T-Shirt} apresentam estruturas similares, com estruturas parecidas para o tronco e as mangas. As diferenças ficam em alguns detalhes, como as diferença de comprimento para a manga e a parte do tronco. A mesma dificuldade também parece aparecer na comparação entre \textit{Sneaker} e \textit{Ankle Boot}, onde a principal diferença é apenas no comprimento da parte do tornozelo. Outra coisa que parece diferencias batante imagens da mesma categoria é o ângulo da foto. Embora a maioria tenha sido tirada de frente para a peça, algumas estão em posições diferentes, podendo gerar um confundimento extra.
 
 # Aplicação \label{sec_apli}
 
-- Ajuste
-- Comparar com Random Forest, nnet, pca-whitened
+## Ferramentas Disponíveis
+
+Existem diversas ferramentas disponíveis para 
 
 # Discussão
 
