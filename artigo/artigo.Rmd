@@ -57,6 +57,13 @@ teste$Y <- as.factor(teste$Y)
 levels(treino$Y) <- c("T-Shirt", "Trouser", "Pullover", "Dress", "Coat", "Sandal", "Shirt", "Sneaker", "Bag", "Ankle Boot")
 levels(teste$Y) <- c("T-Shirt", "Trouser", "Pullover", "Dress", "Coat", "Sandal", "Shirt", "Sneaker", "Bag", "Ankle Boot")
 
+set.seed(4)
+ids_10 <- sample(1:60000, 6000)
+out <- 1:60000; out <- out[!out%in%ids_10]
+id_valid <- list(valid = ids_10)
+id_train <- list(train = out)
+tc <- trainControl(method = "cv", verboseIter = TRUE, 
+                   indexOut = id_valid, index = id_train)
 ```
 
 ```{r funcoes_vis}
@@ -92,20 +99,63 @@ vis <- function(pixels, classe_real = NULL, classe_pred = NULL){
 ```
 
 ```{r ajuste_gbm, cache = TRUE, eval = FALSE}
-#registerDoMC(3)
-set.seed(3)
-tc <- trainControl(number = 1, repeats = 1, verboseIter = TRUE)
-xgb <- train(Y ~ ., data = treino, method = "xgbTree", trControl = tc, 
-             tuneGrid = expand.grid(nrounds = c(10),
-                                   max_depth = c(6),
-                                   eta = c(.08),
-                                   gamma = 0.001,
-                                   colsample_bytree = 0.8,
-                                   subsample = 0.8,
-                                   min_child_weight = 1),
-             nthread = 1)
-mean(unlist(teste[,1]) == predict(xgb, teste))
+if (file.exists("ajuste_xgb.RData")){
+  load("ajuste_xgb.RData")
+} else {
+registerDoMC(3)
+  set.seed(3)
+  xgb <- train(Y ~ ., data = treino, method = "xgbTree", trControl = tc, 
+               tuneGrid = expand.grid(nrounds = c(2),
+                                      max_depth = c(6),
+                                      eta = c(.08),
+                                      gamma = 0.001,
+                                      colsample_bytree = 1,
+                                      subsample = 0.8,
+                                      min_child_weight = 1))
+  save(xgb, file = "ajuste_xgb.RData")
+}
 ```
+
+```{r ajuste_rf, cache = TRUE, eval = FALSE}
+if (file.exists("ajuste_xgb.RData")){
+  load("ajuste_rf.RData")
+} else {
+registerDoMC(3)
+  set.seed(3)
+  rf <- train(Y ~ ., data = treino, method = "rf", trControl = tc)
+  save(rf, file = "ajuste_rf.RData")
+}
+```
+
+```{r ajuste_gbm_pca, cache = TRUE, eval = FALSE}
+if (file.exists("ajuste_xgb.RData")){
+  load("ajuste_rf.RData")
+} else {
+registerDoMC(3)
+  set.seed(3)
+  xgb_pca <- train(Y ~ ., data = treino, method = "xgbTree", trControl = tc, 
+               tuneGrid = expand.grid(nrounds = c(2),
+                                      max_depth = c(6),
+                                      eta = c(.08),
+                                      gamma = 0.001,
+                                      colsample_bytree = 1,
+                                      subsample = 0.8,
+                                      min_child_weight = 1))
+  save(xgb_pca, file = "ajuste_gbm_pca.RData")
+}
+```
+
+```{r ajuste_rf_pca, cache = TRUE, eval = FALSE}
+if (file.exists("ajuste_xgb.RData")){
+  load("ajuste_rf.RData")
+} else {
+registerDoMC(3)
+  set.seed(3)
+  rf <- train(Y ~ ., data = treino, method = "rf", trControl = tc)
+  save(rf, file = "ajuste_rf_pca.RData")
+}
+```
+
 
 
 # Introdução
@@ -367,9 +417,18 @@ vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
 
 # Aplicação \label{sec_apli}
 
-## Ferramentas Disponíveis
+Existem diversas ferramentas disponíveis para ajuste de algoritmos de Boosting. Em particular, para a linguagem R, os mais populares são os pacotes \textit{"xgboost" (Extreme Gradient Boosting), "lightGBM"} e no framework "h2o". Para esse trabalho, os ajustes serão feitos usando o pacote \textit{"xgboost"}, por apresentar maior flexibilização dos parâmetros de maneira mais simples e por também estar implementado através da função \textit{train} do pacote \textit{caret}, o que facilita a comparação com outros modelos ajustados.
 
-Existem diversas ferramentas disponíveis para 
+O conjunto original de treinamento foi separado em dois subconjuntos, um subconjunto para realizar o treinamento de fato (90%) e um outro subconjunto de validação (10%), de maneira aleatória. O conjunto de teste será deixado exclusivamente para a avaliação da performance dos modelos ajustados. Estratégias mais sofisticadas de validação cruzada não foram utilizadas por questões de tempo. Os métodos utilizados tendem a ter ajustes lentos, o que torna o ajuste em um grid de parâmetros muito caro, principalmente se quantidades de árvores $M$ grandes pertencem ao grid.
+
+Os principais objetivos são: Avaliar a qualidade de predição do Gradient Boosting no problema de classificação das peças de roupa, comparar o poder de predição do Boosting com o das Florestas Aleatórias (árvores dependentes versus árvores independentes) e investigar o efeito de pré-processamento para os métodos, por exemplo, através de Análise de Componentes Principais (PCA) nas covariáveis.
+
+Para comparação dos métodos, foram feitos ajustes de diversos tipos de modelos com diferentes configurações de parâmetros. Para resumir as informações, serão reportadas as métricas apenas das configurações de parâmetros que apresentaram melhor desempenho no conjunto de validação, ou seja, do grid escolhido para ajustar cada modelo, apenas a melhor configuração no grid será reportada. Os modelos ajustados para comparação foram:
+
+ - Gradient Boosting com árvores de decisão: 
+ - Florestas Aleatórias:
+ - Gradient Boosting com árvores de decisão + PCA Whitening:
+ - Florestas Aleatórias + PCA Whitening:
 
 # Discussão
 
