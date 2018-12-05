@@ -39,7 +39,8 @@ output: rticles::asa_article
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE) 
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE,
+                      fig.height = 4) 
 ```
 
 ```{r load_pkgs}
@@ -101,10 +102,10 @@ vis <- function(pixels, classe_real = NULL, classe_pred = NULL){
     theme_void() + scale_y_reverse() + guides(fill = FALSE) +
     facet_wrap(~ roupa)
   if(!is.null(classe_real)){
-   p <- p + geom_label(aes(x = 14, y = 25, label = label), hjust = 0.5)
+   p <- p + geom_label(aes(x = 14.5, y = 25, label = label), hjust = 0.5)
   }
   if(!is.null(classe_pred)){
-    p <- p + annotate("text", x = 1, y = 12, label = paste0("Predito: ", classe_pred))
+    p <- p + geom_label(aes(x = 14.5, y = 2, label = pred), hjust = 0.5, color = "red")
   }
   return(p)
 }
@@ -324,7 +325,7 @@ De acordo com a analogia anterior para o caso de modelos aditivos, $g_{im}$ aqui
 Se juntarmos as idéias e formularmos um algorítmo, temos o boosting por gradiente (ou gradient boosting) como feito em @boosting2001. Isto fornece o algorítmo a seguir.
 
  \begin{algorithm}[H]
- \caption{Algoritmo Gradient Boosting apresentado em @boosting2001.}
+ \caption{Algoritmo Gradient Boosting apresentado em \cite{boosting2001}.}
 \Inicio{
   $(y_i, \textbf{x}_i), i = 1,\dots, N$;\\
   Inicie com o preditor constante $H_0 = \arg \min_c \sum_{i = 1}^N L(y_i,c)$;\\
@@ -347,9 +348,6 @@ Se juntarmos as idéias e formularmos um algorítmo, temos o boosting por gradie
 
 
 **Importante:** Boosting surgiu para problemas de classificação binária e foi adaptado para regressão e classificação de várias categorias. Para classificação de K classes, para $m=1,\dots ,M$, ajuste K árvores de classificação binária e use uma função perda apropriada, como a softmax ( @boosting2001 ), que é a mais habitual para este tipo de problema.
-
-
-
 
 ## PCA Whitening
 
@@ -450,7 +448,7 @@ Para comparação dos métodos, foram feitos ajustes de diversos tipos de modelo
   - Gradient Boosting com árvores de classificação + PCA Whitening: PCA utilizada no pré-processamento, todas as componentes foram utlizadas. Taxa de aprendizado $\eta = 0.08$, árvores $f_m$ com profundindade máxima $4$, taxa de amostragem de 80% para cada árvore e um total de $M = 500$ passos.
   - Florestas Aleatórias + PCA Whitening: PCA utilizada no pré-processamento, todas as componentes foram utlizadas. Total de 1000 árvores, com $m = 34 \sim \sqrt{p}$ covariáveis amostradas para cada árvore.
   
-Os resultados obtidos por cada método são apresentados na Tabela 
+Os resultados obtidos por cada método em termos de acurácia são apresentados na Tabela \ref{tab:resultados}. Além disso as Tabelas \ref{tab:confusion_gbm} a \ref{confusion_rf_pca} apresentam as matrizes de confusão de cada caso.
 
 ```{r resultados, cache = TRUE}
 xgb_treino_ac <- mean(predict(xgb,treino) == treino$Y)
@@ -466,7 +464,8 @@ rf_pca_treino_ac <- mean(predict(rf_pca,treino) == treino$Y)
 rf_pca_teste_ac <- mean(predict(rf_pca,teste) == teste$Y)
 
 df <- data.frame(Treinamento = c(xgb_treino_ac, rf_treino_ac, xgb_pca_treino_ac, rf_pca_treino_ac),
-                 Teste = c(xgb_teste_ac, rf_teste_ac, xgb_pca_teste_ac, rf_pca_teste_ac))
+                 Teste = c(xgb_teste_ac, rf_teste_ac, xgb_pca_teste_ac, rf_pca_teste_ac),
+                 "Tempo (em segundos)" = c(6935,31794,9794,14559))
 rownames(df) <- c("GBM", "Florestas Aleatórias", "GBM + PCA", "Florestas Aleatórias + PCA")
 
 df %>% kable(format = "latex", caption = "Acurácia de cada modelo por conjunto", booktabs = T) %>%
@@ -507,16 +506,23 @@ kable(table(Predito = predict(rf_pca, teste), Classe = teste$Y), format = "latex
 
 # Discussão
 
-- Não sei o que entra em discussão/conclusão?
+Tanto o algoritmo de Gradient Boosting quanto as Florestas Aleatórias apresentaram um excelente desempenho para a classificação das peças de roupa no conjunto de teste, com uma vantagem de pouco mais de 2% de acurácia para o GBM. Além disso, como esperado, a maioria dos casos de confundimento ocorreram entre as classes \textit{Coat, Shirt, Dress} e \textit{T-Shirt}. A Figura \ref{fig:misses} apresenta algumas das peças classificadas de forma errada pelo método de Gradient Boosting. 
 
-Proposta:
+```{r misses, cache = TRUE, fig.cap="Exemplos de erros de classificação do GBM. Classe predita em vermelho, classe verdadeira em preto."}
+preds <- predict(xgb,teste) 
+idx_miss <- which(preds != teste$Y)[1:16]
+vis(teste[idx_miss,-1],teste$Y[idx_miss] ,preds[idx_miss])
+```
 
-Discutir (pq em aplicação não há discussão crítica) os resultados da comparação do gbm com os métodos anteriores em questão de velocidade, precisão, flexibilidade. Considerar as variantes xgboost, lightgbm
+Sobre  o custo computacional, comparado aqui através do tempo de execução (foram utilizadas máquinas do www.kaggle.com para os ajustes), os algoritmos de Florestas Aleatórias demoraram mais que os de Boosting nos 2 casos (com e sem PCA), mesmo que, ao adicionar PCA, o tempo de execução das Florestas Aleatórias tenha reduzido bastante, uma vez que, com menos variáveis importantes, a complexidade das árvores ajustadas tende a diminuir, acelerando o ajuste. Também é importante ressaltar, que se dividirmos o tempo de execução pelo número de árvores ajustadas, no caso com PCA, as árvores ficam mais rápidas que o Boosting pelo menos motivo.
 
-Discutir efeito do pca no gbm e em outros métodos que precisem disso, como redes e svm.
+O número de passos $M = 500$ selecionado foi o maior testado no grid de escolha dos parâmetros, o que indica que, possivelmente, a classificação poderia ser ainda mais precisa se fossem utilizados mais passos, enquanto com as 1000 árvores consideradas as Florestas Aleatórias já atingiam 100% de acurácia no conjunto de treinamento, indicando pouco potencial de melhora com o investimento de mais árvores.
 
-Usar outros aspectos considerados no arquivo "kuhn_cheatsheet" pra comparar?
+Com respeito ao efeito do pré-processamento por Análise de Componentes Principais (PCA), utilizando o método apenas como uma rotação (PCA-Whitening), a consequência foi uma diminuição muito grande no poder de predição dos métodos. Isso acontece porque a rotação apenas faz com que variáveis se transformem na direção de maior variabilidade, mas sem levar em consideração sua relação com a resposta. Como consequência, alguns detalhes importantes para predição mas com pouca variabilidade são "diluídos" em muitas componentes de pouca importância e acabam sendo de difícil identificação pelos preditores.  Esse problema não ocorreria, por exemplo, se regiões lineares discriminassem bem as respotas, o que geralmente não é caso de dados de imagens.
+
   
 # Conclusão
 
-Fazer por último e ver o que aprendemos do trabalho.
+Através da investigação dos resultados da aplicação e da discussão dos pontos apontados nas seções de Discussão e Metodologia, pudemos concluir que o algoritmo de Gradient Boosting produz preditores muito bons por ter sido construído com uma estratégia muito eficiente e que pode ser regulada através da inclusão de diversos parâmetros de ajuste em suas variações para evitar problemas característicos dos problemas. Como consequência, percebemos que, se construído e ajustado de maneira apropriada, ele produz resultados melhores do que a estratégia de Florestas Aleatórias, tanto do ponto de vista de erro de predição quanto em custo computacional. De maneira geral, criar novas árvores simples baseado nas qualidades e defeitos do "comitê" a cada passo parece mais eficiente do que criar novas árvores de maneira aleatória e independente das qualidades e defeitos do preditor.
+
+A rotação da matriz das covariáveis através do uso de Componentes Principais não é apropriada para o tipo de problema considerado, pois a rotação induz a perda de características importantes para o problema de classificação. O fato dos métodos testados serem capazes de criar regiões de separação altamente não-lineares é uma das maiores vantagens de se usar árvores, mas essa vantagem acaba sendo perdida devido à rotação feita. Por outro lado, caso essa rotação fosse apropriada, uma redução de variáveis poderia ser feita para ajustar os modelos de maneira mais rápida, assim, mais passos do Gradient Boosting poderiam ser feitos com o mesmo tempo, possivelmente obtendo preditores ainda melhores.
