@@ -349,6 +349,40 @@ Se juntarmos as idéias e formularmos um algorítmo, temos o boosting por gradie
 
 **Importante:** Boosting surgiu para problemas de classificação binária e foi adaptado para regressão e classificação de várias categorias. Para classificação de K classes, para $m=1,\dots ,M$, ajuste K árvores de classificação binária e use uma função perda apropriada, como a softmax ( @boosting2001 ), que é a mais habitual para este tipo de problema.
 
+## Parâmetros de Refinamento
+
+O propósito de adicionar parâmetros de refinamento no modelo é evitar o sobreajuste para melhorar sua predição e diminuir o custo computacional. Em boosting, na implementação citada anteriormente, temos dois componentes principais: o número de árvores $M$ e seus respectivos tamanhos, ou profundidades. Além disso, pode-se adicionar vários outros parâmetros, como aqueles implementados nas ferramentos (CITAR xgboost E LIGHTGBM). De muitos, destacam-se dois: taxa de amostragem e taxa de aprendizado.
+
+
+### Profundidade das Árvores
+
+Para uma árvore de decisão, a abordagem padrão é crescer uma árvore e, para diminuir sua variância, podar ela @elements. Entretanto, @elements cita que para boosting este procedimento levaria à criação de árvores muito grande no inicio e, consequentemente, seria extremamente custoso ao ponto de talvez tornar o método inviável. Uma alternativa então é controlar o tamanho máximo, ou profundidade, $J$ de cada árvore.
+
+A profundidade das árvores $J$ tem um papel muito importante em boosting, pois ele é parecido com a ordem de interações em modelos de regressão. Se utilizarmos uma decomposição ANOVA para funções, @elements diz que 
+
+\begin{equation}
+f(x) = \sum_j f_j(x) + \sum_{jk} f_{jk}(x_j,x_k) + \sum_{jkl} f_{jkl}(x_j,x_k,x_l) + \dots .
+\end{equation}
+
+Neste caso $f_j(x)$ são todas as funções de um parâmetro que melhor aproximam $f(x)$ e estão associados aos "efeitos principais". $f_{jk}(x_j,x_k)$ são todas as funções de dois parâmetros que melhor aproximam $f(x)$ e estão associados às interações de segunda ordem e assim por diante. Ao fazer conexão com árvores de decisão, o nível de interação é limitado pelo tamanho de cada árvore. 
+
+Como visto em disciplinas de delineamento de experimentos, interações de altos níveis são raras. Isto, aliado à experiência dos autores, levou à conclusão de que por mais que um modelo com somente "efeitos principais" seja simplório demais, interações de ordem 10 são desnecessárias. É comentado então que valores habituais estão entre $4 \leq J \leq 8$.
+
+### Taxa de Aprendizado
+
+A taxa de aprendizado $\nu$ é, na verdade, uma estratégia de encolhimento (do mesmo tipo associado à Regressão Ridge @elements), cujo propósito é evitar sobreajuste do modelo e melhorar sua predição. Para boosting o passo 4 do algorítmo \ref{gradboost_alg} é levemente modificado de forma que agora
+
+$$
+f_m (x_i) = f_{m-1} (x_i) + \nu \sum_{j=1}^J \gamma_{jm} I(x_i \in R_{jm}).
+$$
+
+Note a semelhança com $\rho$, na equação \ref{eq:general_emp_grad_argmin} (por este motivo é chamado de taxa de aprendizado). Em @elements é citado uma dependência entre os valores de $\nu$ e $M$. Habitualmente valores pequenos de $\nu$ levam a valores grande de $M$. Como em @boosting2001 foi-se descoberto empiricamente que pequenos $\nu$ fornecem os menores erros ,quando avaliados no conjunto de teste, a estratégia para escolha deles é fixar valores pequenos de $\nu$ e buscar aqueles $M$ que levam à erros de predição satisfatórios.
+
+### Taxa de Amostagem
+
+A idéia aqui é simplesmente de que, a cada iteração, ajusta-se a árvore de decisão em uma fração $\eta$ (habitualmente $\eta = 1/2$ ou até mesmo menos) dos dados, sorteada aleatoriamente. Com isso @boosting2001 reporta que o custo computacional cai bastante e que, em muitos casos, o modelo torna-se mais acurado. Porém, é importante citar que sem utilizar encolhimento, o desempenho do modelo costuma cair drasticamente. 
+
+
 ## PCA Whitening
 
 Talvez isso não seja necessário pois habitualmente as arvores nao precisam desse tipo de tratamento. Svm e redes habitualmente precisam pq usam demais combinacoes lineares. 
