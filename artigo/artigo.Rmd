@@ -24,6 +24,17 @@ header-includes:
 - \usepackage[portuguese]{algorithm2e}
 - \usepackage[portuguese]{babel}
 - \usepackage{amssymb}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage[table]{xcolor}
 output: rticles::asa_article
 ---
 
@@ -37,6 +48,7 @@ library(caret)
 library(doMC)
 library(xgboost)
 library(knitr)
+library(kableExtra)
 ```
 
 ```{r load_mnist, cache = TRUE}
@@ -98,7 +110,7 @@ vis <- function(pixels, classe_real = NULL, classe_pred = NULL){
 }
 ```
 
-```{r ajuste_gbm, cache = TRUE, eval = FALSE}
+```{r ajuste_gbm, cache = TRUE, eval = TRUE}
 if (file.exists("ajuste_xgb.RData")){
   load("ajuste_xgb.RData")
 } else {
@@ -116,8 +128,8 @@ registerDoMC(3)
 }
 ```
 
-```{r ajuste_rf, cache = TRUE, eval = FALSE}
-if (file.exists("ajuste_xgb.RData")){
+```{r ajuste_rf, cache = TRUE, eval = TRUE}
+if (file.exists("ajuste_rf.RData")){
   load("ajuste_rf.RData")
 } else {
 registerDoMC(3)
@@ -127,32 +139,40 @@ registerDoMC(3)
 }
 ```
 
-```{r ajuste_gbm_pca, cache = TRUE, eval = FALSE}
-if (file.exists("ajuste_xgb.RData")){
-  load("ajuste_rf.RData")
+```{r ajuste_gbm_pca, cache = TRUE, eval = TRUE}
+if (file.exists("ajuste_gbm_pca.RData")){
+  load("ajuste_gbm_pca.RData")
 } else {
 registerDoMC(3)
   set.seed(3)
+  tc <- trainControl(method = "cv", verboseIter = TRUE, 
+                   indexOut = id_valid, index = id_train,
+                   preProcOptions = list(thresh = 0.95))
   xgb_pca <- train(Y ~ ., data = treino, method = "xgbTree", trControl = tc, 
-               tuneGrid = expand.grid(nrounds = c(2),
+               tuneGrid = expand.grid(nrounds = c(500),
                                       max_depth = c(6),
                                       eta = c(.08),
                                       gamma = 0.001,
                                       colsample_bytree = 1,
                                       subsample = 0.8,
-                                      min_child_weight = 1))
+                                      min_child_weight = 1),
+               preProcess = "pca")
   save(xgb_pca, file = "ajuste_gbm_pca.RData")
 }
 ```
 
-```{r ajuste_rf_pca, cache = TRUE, eval = FALSE}
-if (file.exists("ajuste_xgb.RData")){
-  load("ajuste_rf.RData")
+```{r ajuste_rf_pca, cache = TRUE, eval = TRUE}
+if (file.exists("ajuste_rf_pca.RData")){
+  load("ajuste_rf_pca.RData")
 } else {
-registerDoMC(3)
+  registerDoMC(3)
   set.seed(3)
-  rf <- train(Y ~ ., data = treino, method = "rf", trControl = tc)
-  save(rf, file = "ajuste_rf_pca.RData")
+  tc <- trainControl(method = "cv", verboseIter = TRUE, 
+                     indexOut = id_valid, index = id_train,
+                     preProcOptions = list(thresh = 1))
+  rf_pca <- train(Y ~ ., data = treino, method = "rf", trControl = tc, 
+                  preProcess = "pca", tuneGrid = data.frame(mtry = 39), ntree = 1000)
+  save(rf_pca, file = "ajuste_rf_pca.RData")
 }
 ```
 
@@ -425,10 +445,65 @@ Os principais objetivos são: Avaliar a qualidade de predição do Gradient Boos
 
 Para comparação dos métodos, foram feitos ajustes de diversos tipos de modelos com diferentes configurações de parâmetros. Para resumir as informações, serão reportadas as métricas apenas das configurações de parâmetros que apresentaram melhor desempenho no conjunto de validação, ou seja, do grid escolhido para ajustar cada modelo, apenas a melhor configuração no grid será reportada. Os modelos ajustados para comparação foram:
 
- - Gradient Boosting com árvores de decisão: 
- - Florestas Aleatórias:
- - Gradient Boosting com árvores de decisão + PCA Whitening:
- - Florestas Aleatórias + PCA Whitening:
+ - Gradient Boosting com árvores de classificação: Taxa de aprendizado $\eta = 0.08$, árvores $f_m$ com profundindade máxima $4$, taxa de amostragem de 80% para cada árvore e um total de $M = 500$ passos.
+  - Florestas Aleatórias: Total de 1000 árvores, com $m = 34 \sim \sqrt{p}$ covariáveis amostradas para cada árvore. 
+  - Gradient Boosting com árvores de classificação + PCA Whitening: PCA utilizada no pré-processamento, todas as componentes foram utlizadas. Taxa de aprendizado $\eta = 0.08$, árvores $f_m$ com profundindade máxima $4$, taxa de amostragem de 80% para cada árvore e um total de $M = 500$ passos.
+  - Florestas Aleatórias + PCA Whitening: PCA utilizada no pré-processamento, todas as componentes foram utlizadas. Total de 1000 árvores, com $m = 34 \sim \sqrt{p}$ covariáveis amostradas para cada árvore.
+  
+Os resultados obtidos por cada método são apresentados na Tabela 
+
+```{r resultados, cache = TRUE}
+xgb_treino_ac <- mean(predict(xgb,treino) == treino$Y)
+xgb_teste_ac <- mean(predict(xgb,teste) == teste$Y)
+
+rf_treino_ac <- mean(predict(rf,treino) == treino$Y)
+rf_teste_ac <- mean(predict(rf,teste) == teste$Y)
+
+xgb_pca_treino_ac <- mean(predict(xgb_pca,treino) == treino$Y)
+xgb_pca_teste_ac <- mean(predict(xgb_pca,teste) == teste$Y)
+
+rf_pca_treino_ac <- mean(predict(rf_pca,treino) == treino$Y)
+rf_pca_teste_ac <- mean(predict(rf_pca,teste) == teste$Y)
+
+df <- data.frame(Treinamento = c(xgb_treino_ac, rf_treino_ac, xgb_pca_treino_ac, rf_pca_treino_ac),
+                 Teste = c(xgb_teste_ac, rf_teste_ac, xgb_pca_teste_ac, rf_pca_teste_ac))
+rownames(df) <- c("GBM", "Florestas Aleatórias", "GBM + PCA", "Florestas Aleatórias + PCA")
+
+df %>% kable(format = "latex", caption = "Acurácia de cada modelo por conjunto", booktabs = T) %>%
+  kable_styling(full_width = T, latex_options = "striped")
+```
+
+ 
+ 
+```{r confusion_gbm, cache = TRUE}
+kable(table(Predito = predict(xgb, teste), Classe = teste$Y), format = "latex",
+      caption = "Matriz de Confusão para predições com Gradient Boosting no conjunto de teste", booktabs = T) %>%
+    kable_styling(full_width = T, latex_options = c("HOLD_position","striped"), font_size = 8) %>%
+  row_spec(0, angle = -45) %>% add_header_above(header = c("", "Predito" = 10))
+```
+ 
+ 
+```{r confusion_rf, cache = TRUE}
+kable(table(Predito = predict(rf, teste), Classe = teste$Y), format = "latex",
+      caption = "Matriz de Confusão para predições com Florestas Aleatórias no conjunto de teste", booktabs = T) %>%
+    kable_styling(full_width = T, latex_options = c("HOLD_position","striped"), font_size = 8) %>%
+  row_spec(0, angle = -45) %>% add_header_above(header = c("", "Predito" = 10))
+```
+ 
+```{r confusion_xgb_pca, cache = TRUE}
+kable(table(Predito = predict(xgb_pca, teste), Classe = teste$Y), format = "latex",
+      caption = "Matriz de Confusão para predições com Gradient Boosting com PCA no conjunto de teste", booktabs = T) %>%
+    kable_styling(full_width = T, latex_options = c("HOLD_position","striped"), font_size = 8) %>%
+  row_spec(0, angle = -45) %>% add_header_above(header = c("", "Predito" = 10))
+```
+
+ 
+```{r confusion_rf_pca, cache = TRUE}
+kable(table(Predito = predict(rf_pca, teste), Classe = teste$Y), format = "latex",
+      caption = "Matriz de Confusão para predições com Gradient Boosting", booktabs = T) %>%
+    kable_styling(full_width = T, latex_options = c("HOLD_position","striped"), font_size = 8) %>%
+  row_spec(0, angle = -45) %>% add_header_above(header = c("", "Predito" = 10))
+```
 
 # Discussão
 
