@@ -19,7 +19,7 @@ keywords:
 - Árvores de Classificação
 
 abstract: |
-  É apresentada a ideia geral de Boosting e descrita detalhadamente a consrtução do algoritmo de Gradient Boosting e suas principais características. O algoritmo é aplicado a dados de classficação de peças de roupa através de imagens e o seu desempenho é comparado com o das Florestas Aleatórias e versões com pré-processamento utilizando Análise de Componentes Principais nas covariáveis. O Gradient Boosting apresenta resultados superiores aos das Florestas Aleatórias mesmo com um número menor de iterações, bem como custo computacional. A inclusão de PCA diminui o poder preditivo de ambas os algoritmos. Por fim, é feita uma discussão sobre os aspectos teóricos e características do problema que levaram às diferenças.
+  É apresentada a ideia geral de Boosting e descrita detalhadamente a construção do algorítmo de Gradient Boosting e suas principais características. O algorítmo é aplicado a dados de classificação de peças de roupa através de imagens e seu desempenho é comparado com o de Florestas Aleatórias, tanto ao utilizar Análise de Componentes Principais nas covariáveis como pré-processamento e não usar pré-processamento algum. Como conclusão, o Gradient Boosting apresenta resultados superiores aos das Florestas Aleatórias mesmo com um número menor de iterações, tanto em poder preditivo como custo em computacional reduzido. Além disso, a inclusão de PCA diminui drásticamente o poder preditivo de ambas os algorítmos. Por fim, é feita uma discussão sobre os aspectos teóricos e características do problema que levaram às diferenças.
 
 bibliography: bibliography.bib
 header-includes:
@@ -184,11 +184,11 @@ if (file.exists("ajuste_rf_pca.RData")){
 
 # Introdução
 
- Boosting é o nome dado a um tipo de algoritmo que, assim como outros métodos em Machine Learning como Bagging e Florestas Aleatórias, busca combinar um grande número de preditores com baixo poder de predição (isto é, um pouco mais eficientes do que a escolha ao acaso) para compor um bom preditor.  O conceito é fundamentado nas ideias apresentadas em @kearns1988 e @schapire1990.
+ Boosting é o nome dado a um tipo de algorítmo que, assim como outros métodos em Aprendizado de Máquina como Bagging e Florestas Aleatórias, busca combinar um grande número de preditores com baixo poder de predição (isto é, um pouco mais eficientes do que a escolha ao acaso) para compor um bom preditor.  O conceito é fundamentado nas ideias apresentadas em @kearns1988 e @schapire1990.
  
- Diferentemente dos outros métodos citados, onde os preditores fracos que serão combinados são criados de maneira independente (e aleatória devido ao processo de bootstrap), no método de Boosting os preditores fracos são criados de maneira a melhorar o desempenho em regiões com altas taxas de erro. Isto é, se pensarmos que cada preditor tem um "voto" na decisão final, o método nos fornece um comitê em que aqueles que tem grande convicção têm mais poder na decisão. Estes de grande convicção, sabem muito sobre uma parte do espaço amostral (não sei se amostral é a melhor palavra).
+ Diferentemente dos outros métodos citados, onde os preditores fracos que serão combinados são criados de maneira independente (e aleatória devido ao processo de bootstrap), no método de Boosting os consecutivos preditores fracos são criados de maneira a melhorar o desempenho dos anteriores, em regiões com altas taxas de erro. Isto é, se pensarmos que cada preditor tem um "voto" na decisão final, o método nos fornece um comitê em que aqueles que tem grande convicção têm mais poder na decisão. Estes de grande convicção, sabem muito sobre certas partes do espaço amostral.
  
-O algoritmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeira vez em @adaboost, é um dos exemplos mais clássicos de algoritmo de boosting para o problema de classificação binária. Nele, a cada passo $m$, um novo classificador $G_m$ é ajustado com base em uma versão ponderada do conjunto de dados original, na qual o peso de cada observação depende do desempenho do classificador anterior: pontos classificados de maneira errada recebem peso maior, e assim, têm uma chance maior de serem corrigidos pelos classificadores ajustados na próxima iteração. O Algoritmo \ref{adaboost_alg} apresenta a descrição completa do AdaBoost. Note que os classificadores $G_m$ a serem usados não precisam ser de nenhum tipo específico e, portanto, se comporta como um parâmetro a ser escolhido por um processo de regulagem (tuning) do problema. Apesar disso, o mais comum, pela grande flexibilidade, é a árvore de classificação e regressão (CART).
+O algorítmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeira vez em @adaboost, é o exemplo mais clássico de algorítmo de boosting para o problema de classificação binária. Nele, a cada passo $m$, um novo classificador $G_m$ é ajustado com base em uma versão ponderada do conjunto de dados original, na qual o peso de cada observação depende do desempenho do classificador anterior: pontos classificados de maneira errada recebem peso maior, e assim, têm uma chance maior de serem corrigidos pelos classificadores ajustados na próxima iteração. O algorítmo \ref{adaboost_alg} apresenta a descrição completa do AdaBoost. Note que os classificadores $G_m$ a serem usados não precisam ser de nenhum tipo específico e, portanto, se comporta como um parâmetro a ser escolhido por um processo de regulagem (tuning) do problema. Apesar disso, o mais comum, pela grande flexibilidade, é a árvore de classificação e regressão (CART).
 
 \begin{algorithm}[h]
 \Inicio{
@@ -205,13 +205,13 @@ O algoritmo AdaBoost (de \textit{Adaptative Boosting}), apresentado pela primeir
   Defina o classificador final como 
   $$G(x) = \text{sign}(\sum_{m = 1}^M \alpha_m I(G_m(x) = k)).$$
 }
-\caption{Algoritmo AdaBoost apresentado em \cite{elements}. Aqui, as classes do problema de classificação são representadas pelos valores -1 e 1.}
+\caption{algorítmo AdaBoost apresentado em \cite{elements}. Aqui, as classes do problema de classificação são representadas pelos valores -1 e 1.}
 \label{adaboost_alg}
 \end{algorithm}
 
-Embora o AdaBoost seja um bom ponto de início para entender o conceito de Boosting, ele foi projetado para resolver problemas de classificação binária, e por isso, não apresenta resultados tão bons quando diretamente adaptado a problemas de classificação múltipla e regressão, então diferentes algoritmos são necessários para esses casos. @SAMME propõe uma modificação do AdaBoost para o caso de classificação múltipla, por exemplo.
+Embora o AdaBoost seja um bom ponto de início para entender o conceito de Boosting, ele foi projetado para resolver problemas de classificação binária, e por isso, não apresenta resultados tão bons quando diretamente adaptado a problemas de classificação múltipla e regressão, então diferentes algorítmos são necessários para esses casos. @SAMME propõe uma modificação do AdaBoost para o caso de classificação múltipla, por exemplo.
 
-Nesse trabalho, por apresentar uma forma mais geral, será considerado o algoritmo Gradient Boosting, que pode lidar com todos os tipos de problemas de predição com a devida escolha da função perda a ser minimizada. O objetivo do trabalho é apresentar e discutir as principais propriedades do Gradient Boosting, bem como possíveis ajustes e comparar com outro método baseado em árvores (Florestas Aleatórias) através de uma aplicação a dados reais. A parte teórica do método e suas descrição detalhada são apresentadas na Seção \ref{sec_metodologia}. O método é então aplicado ao conjunto de dados Fahsion-MNIST, descrito na Seção \ref{sec_dados} e os resultados são mostrados na Seção \ref{sec_apli}.
+Nesse trabalho, por apresentar uma forma mais geral, será considerado o algorítmo Gradient Boosting, que pode lidar com todos os tipos de problemas de predição com a devida escolha da função perda a ser minimizada. O objetivo do trabalho é apresentar e discutir as principais propriedades do Gradient Boosting, bem como possíveis ajustes e comparar com outro método baseado em árvores (Florestas Aleatórias) através de uma aplicação a dados reais. A parte teórica do método e suas descrição detalhada são apresentadas na Seção \ref{sec_metodologia}. O método é então aplicado ao conjunto de dados Fahsion-MNIST, descrito na Seção \ref{sec_dados} e os resultados são mostrados na Seção \ref{sec_apli}.
   
 # Metodologia \label{sec_metodologia}
 ## Contexto e Visão Geral
@@ -237,7 +237,7 @@ f_m = f_{m-1} - \rho_k \sum_{i=1}^N \nabla_f L(y_i,f(x_i))
 \label{eq:general_emp_grad_argmin}
 \end{equation}
 
-Entretanto, @boosting2001 cita que simplesmente utilizar isto teria efeitos catastróficos no modelo preditivo. Primeiro pois só são levados em consideração as observações que temos (isto é, não existe nenhuma intenção de extrapolar poder preditivo, como a separação entre teste e treinamento ou validação cruzada faria) e segundo pois não é levada em consideração a relação entre as covariáveis. Para contornar este problema, o autor sugere sequencialmente (de forma aditiva) ajustar uma quantidade $M$ de árvores de decisão aos pseudo-resíduos, obtidos de predições subsequentes\label{inline:context_resid&trees}. Assim, o problema de otimização \ref{eq:general_emp_argmin} se torna
+Entretanto, @boosting2001 cita que simplesmente utilizar isto teria efeitos catastróficos no modelo preditivo. Primeiro que só são levados em consideração as observações que temos (isto é, não existe nenhuma intenção de extrapolar poder preditivo, como a separação entre teste e treinamento ou validação cruzada faria) e, segundo, não é levada em consideração a relação entre as covariáveis. Para contornar este problema, o autor sugere sequencialmente (de forma aditiva) ajustar uma quantidade $M$ de árvores de decisão aos pseudo-resíduos, obtidos de predições subsequentes\label{inline:context_resid&trees}. Assim, o problema de otimização \ref{eq:general_emp_argmin} se torna
 
 \begin{equation}
 \begin{aligned}
@@ -275,7 +275,7 @@ que depende da função de perda escolhida. @elements fornece uma tabela de solu
  
 ## Otimização por Gradiente 
 
-Gradiente Descendente é um método de otimização numérica que mínimos de uma função. Sua proposta é começar em um ponto inicial e incrementar a função avaliada naquele na direção oposta ao gradiente, em uma certa "velocidade" $\rho_k$, como em \ref{eq:general_emp_grad_argmin}. As iterações são dadas por
+Gradiente Descendente é um método de otimização numérica para obter o valor mínimo de uma função. Sua proposta é começar em um ponto inicial e incrementar a função avaliada neste ponto, na direção oposta ao gradiente, em uma certa "velocidade" $\rho_k$, como em \ref{eq:general_emp_grad_argmin}. As iterações são dadas por
 
 \begin{equation}
 f_m = f_{m-1} - \rho_k \sum_{i=1}^N \big[ \nabla_f L(y_i,f(x_i)) \big]_{f(x_i) = f_{m-1}(x_i)}
@@ -291,7 +291,7 @@ onde
 
 ## Gradient Boosting
 
-A direção fornecida da solução pelo método do Gradiente e sua conexão com os resíduos fornecem a intuição e a engrenagem por trás do Boosting. Boosting é baseado em modelos aditivos, onde sequencialmente são ajustam modelos lineares generalizados nos resíduos. Ou seja, no passo $m$, temos o problema
+A direção fornecida da solução pelo método do Gradiente e sua conexão com os resíduos fornecem a intuição e a engrenagem por detrás de Boosting. Boosting é baseado em modelos aditivos, onde sequencialmente são ajustam modelos lineares generalizados nos resíduos. Ou seja, no passo $m$, temos o problema
 
 \begin{equation}
 \min_{\beta_m,\Theta_m} \sum_{i=1}^N L(y_i, f_{m-1}(x_i) + \beta_m b(x_i;\Theta_m))
@@ -323,10 +323,10 @@ Isto fornece
 
 De acordo com a analogia anterior para o caso de modelos aditivos, $g_{im}$ aqui tem uma forte conexão com os resíduos (para este exemplo, ele de fato é). Na verdade, ele é chamado de \textit{pseudo-resíduo}, pois para problemas de classificação, os "resíduos" são, na verdade, a margem de classificação (@elements cita como exemplo a perda exponencial e sua interpretação para o algorítmo AdaBoost). Esta é a principal motivação do Boosting, a conexão entre os pseudo-resíduos e a direção do gradiente. 
 
-Se juntarmos as idéias e formularmos um algorítmo, temos o boosting por gradiente (ou Gradient Boosting, ou Gradient Boosting Machine, GBM) como feito em @boosting2001, obtemos o algoritmo a seguir.
+Se juntarmos as idéias e formularmos um algorítmo, temos o boosting por gradiente (ou Gradient Boosting) como feito em @boosting2001, obtemos o algorítmo a seguir.
 
  \begin{algorithm}[H]
- \caption{Algoritmo Gradient Boosting apresentado em \cite{boosting2001}.}
+ \caption{algorítmo Gradient Boosting apresentado em \cite{boosting2001}.}
 \Inicio{
   $(y_i, \textbf{x}_i), i = 1,\dots, N$;\\
   Inicie com o preditor constante $f_0(x) = c^* =  \arg \min_c \sum_{i = 1}^N L(y_i,c)$;\\
@@ -352,7 +352,7 @@ Se juntarmos as idéias e formularmos um algorítmo, temos o boosting por gradie
 
 ## Parâmetros de Refinamento
 
-O propósito de adicionar parâmetros de refinamento no modelo é evitar o sobreajuste para melhorar sua predição e diminuir o custo computacional. Em boosting, na implementação citada anteriormente, temos dois componentes principais: o número de árvores $M$ e seus respectivos tamanhos, ou profundidades. Além disso, pode-se adicionar vários outros parâmetros, como aqueles implementados nas ferramentas disponíveis. De muitos, destacam-se dois: taxa de amostragem e taxa de aprendizado.
+O propósito de adicionar parâmetros de refinamento no modelo é evitar o sobreajuste para melhorar sua predição e diminuir o custo computacional. Em boosting por gradiente, temos dois componentes principais: o número de árvores $M$ e seus respectivos tamanhos, ou profundidades. Além disso, pode-se adicionar vários outros parâmetros, como aqueles implementados nas ferramentas disponíveis. De muitos, destacam-se dois: taxa de amostragem e taxa de aprendizado.
 
 
 ### Profundidade das Árvores
@@ -377,7 +377,7 @@ $$
 f_m (x_i) = f_{m-1} (x_i) + \eta \sum_{j=1}^J \gamma_{jm} I(x_i \in R_{jm}).
 $$
 
-Note a semelhança com $\rho$, na equação \ref{eq:general_emp_grad_argmin} (por este motivo é chamado de taxa de aprendizado). Em @elements é citado uma dependência entre os valores de $\nu$ e $M$. Habitualmente valores pequenos de $\nu$ levam a valores grande de $M$. Como em @boosting2001 foi-se descoberto empiricamente que pequenos $\nu$ fornecem os menores erros ,quando avaliados no conjunto de teste, a estratégia para escolha deles é fixar valores pequenos de $\nu$ e buscar aqueles $M$ que levam à erros de predição satisfatórios.
+Note a semelhança com $\rho$, na equação \ref{eq:general_emp_grad_argmin} (por este motivo é chamado de taxa de aprendizado). Em @elements é citado uma dependência entre os valores de $\nu$ e $M$. Habitualmente valores pequenos de $\nu$ levam a valores grande de $M$. Como em @boosting2001 foi-se descoberto empiricamente que pequenos $\nu$ fornecem os menores erros de predição, quando avaliados no conjunto de teste, a estratégia para escolha deles é fixar valores pequenos de $\nu$ e buscar aqueles $M$ que levam à erros de predição satisfatórios.
 
 ### Taxa de Amostagem
 
@@ -392,7 +392,7 @@ Por outro lado, árvores não são capazes de criar regras como $(x_1 + x_2 > 0)
 
 Uma das maneiras de se combinar variáveis é por meio de Análise de Componentes Principais ou PCA [@pca], onde se busca uma transformação ortogonal da matriz $X$, que faça uma rotação do espaço na direção de maior variabilidade. As componentes (combinações lineares) dificilmente têm qualquer interpretabilidade, mas podem ser úteis, por exemplo para redução de dimensionalidade, uma vez que a maioria da variabilidade usualmente se concentra em um número de componentes relativamente menor que a dimensão original e são não-correlacionadas.
 
-É de interesse investigar os efeitos do uso desse tipo de rotação para o algoritmo de Gradient Boosting, se a rotação pode tornar as divisões do espaço pelas árvores mais eficiente em termos de predição e/ou computacionais e comparar com outros métodos baseados em árvores, como Florestas Aleatórias.
+É de interesse investigar os efeitos do uso desse tipo de rotação para o algorítmo de Gradient Boosting, se a rotação pode tornar as divisões do espaço pelas árvores mais eficiente em termos de predição e/ou computacionais e comparar com outros métodos baseados em árvores, como Florestas Aleatórias.
 
 
 # Conjunto de Dados Fashion-MNIST \label{sec_dados}
@@ -471,15 +471,15 @@ vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
 
  Estão disponíveis em https://www.kaggle.com/zalando-research/fashionmnist/home dois conjuntos de dados: Um conjunto de treinamento, contendo 60000 imagens e um conjunto de teste, com 10000 imagens. Tanto o conjunto de treino quanto o de teste estão balanceados com exatamente 10% (6000 e 1000, respecitavamente) observações de cada categoria. Cada pixel da imagem é considerado uma variável preditora, totalizando $28 \times 28 = 784$. Portanto, temos um total de $n = 60000$ observações e $p = 784$. 
  
- A priori, parece existir um grande potencial de confundimento entre algumas categorias. Por exemplo, \textit{Coat, Shirt, Dress} e \textit{T-Shirt} apresentam estruturas similares, com estruturas parecidas para o tronco e as mangas. As diferenças ficam em alguns detalhes, como as diferença de comprimento para a manga e a parte do tronco. A mesma dificuldade também parece aparecer na comparação entre \textit{Sneaker} e \textit{Ankle Boot}, onde a principal diferença é apenas no comprimento da parte do tornozelo. Outra coisa que parece diferencias batante imagens da mesma categoria é o ângulo da foto. Embora a maioria tenha sido tirada de frente para a peça, algumas estão em posições diferentes, podendo gerar um confundimento extra.
+ A priori, parece existir um grande potencial de confundimento entre algumas categorias. Por exemplo, \textit{Coat, Shirt, Dress} e \textit{T-Shirt} apresentam estruturas similares, com estruturas parecidas para o tronco e as mangas. As diferenças ficam em alguns detalhes, como as diferenças de comprimento para a manga e a tronco. A mesma dificuldade também aparece na comparação entre \textit{Sneaker} e \textit{Ankle Boot}, onde a principal diferença é apenas no comprimento do tornozelo. Outra coisa que parece diferenciar bastante imagens da mesma categoria é o ângulo da foto. Embora a maioria tenha sido tirada de frente para a peça, algumas estão em posições diferentes, podendo gerar um confundimento extra.
 
 # Aplicação \label{sec_apli}
 
-Existem diversas ferramentas disponíveis para ajuste de algoritmos de Boosting. Em particular, para a linguagem R, os mais populares são os pacotes \textit{"xgboost" (Extreme Gradient Boosting), "lightGBM"} e no framework "h2o". Para esse trabalho, os ajustes serão feitos usando o pacote \textit{"xgboost"}, por apresentar maior flexibilização dos parâmetros de maneira mais simples e por também estar implementado através da função \textit{train} do pacote \textit{caret}, o que facilita a comparação com outros modelos ajustados.
+Existem diversas ferramentas disponíveis para ajuste de algorítmos de Boosting. Em particular, para a linguagem R, os mais populares são os pacotes \textit{"xgboost" (@xgb_pack), "lightGBM" (lightgbm_pack)} e no framework "h2o" (@h2o_pack). Para esse trabalho, os ajustes serão feitos usando o pacote \textit{"xgboost"}, por apresentar maior flexibilização dos parâmetros de maneira mais simples e por também estar implementado através da função \textit{train} do pacote \textit{caret} (@caret_pack), o que facilita a comparação com outros modelos ajustados.
 
-O conjunto original de treinamento foi separado em dois subconjuntos, um subconjunto para realizar o treinamento de fato (90%) e um outro subconjunto de validação (10%), de maneira aleatória. O conjunto de teste será deixado exclusivamente para a avaliação da performance dos modelos ajustados. Estratégias mais sofisticadas de validação cruzada não foram utilizadas por questões de tempo. Os métodos utilizados tendem a ter ajustes lentos, o que torna o ajuste em um grid de parâmetros muito caro, principalmente se quantidades de árvores $M$ grandes pertencem ao grid.
+O conjunto original de treinamento foi separado em dois subconjuntos, um subconjunto para realizar o treinamento de fato (90%) e um outro subconjunto de validação (10%), de maneira aleatória. O conjunto de teste será deixado exclusivamente para a estimação da verdadeira performance dos modelos ajustados. Estratégias mais sofisticadas de validação cruzada não foram utilizadas por questões de tempo. Os métodos utilizados costumam ter ajustes lentos, o que torna o ajuste em um grid de parâmetros muito custoso, principalmente se uma grande quantidade de árvores $M$ pertence ao grid.
 
-Os principais objetivos são: Avaliar a qualidade de predição do Gradient Boosting no problema de classificação das peças de roupa, comparar o poder de predição do Boosting com o das Florestas Aleatórias (árvores dependentes versus árvores independentes) e investigar o efeito de pré-processamento para os métodos, por exemplo, através de Análise de Componentes Principais (PCA) nas covariáveis.
+Os principais objetivos são: Avaliar a qualidade de predição do Gradient Boosting no problema de classificação das peças de roupa, comparar o poder de predição do Boosting com o das Florestas Aleatórias (árvores dependentes versus árvores "independentes") e investigar o efeito de pré-processamento para os métodos, por exemplo, através de Análise de Componentes Principais (PCA) nas covariáveis.
 
 Para comparação dos métodos, foram feitos ajustes de diversos tipos de modelos com diferentes configurações de parâmetros. Para resumir as informações, serão reportadas as métricas apenas das configurações de parâmetros que apresentaram melhor desempenho no conjunto de validação, ou seja, do grid escolhido para ajustar cada modelo, apenas a melhor configuração no grid será reportada. Os modelos ajustados para comparação foram:
 
@@ -546,7 +546,7 @@ kable(table(Predito = predict(rf_pca, teste), Classe = teste$Y), format = "latex
 
 # Discussão
 
-Tanto o algoritmo de Gradient Boosting quanto as Florestas Aleatórias apresentaram um excelente desempenho para a classificação das peças de roupa no conjunto de teste, com uma vantagem de pouco mais de 2% de acurácia para o GBM. Além disso, como esperado, a maioria dos casos de confundimento ocorreram entre as classes \textit{Coat, Shirt, Dress} e \textit{T-Shirt}. A Figura \ref{fig:misses} apresenta algumas das peças classificadas de forma errada pelo método de Gradient Boosting. 
+Tanto o algorítmo de Gradient Boosting quanto das Florestas Aleatórias apresentaram um excelente desempenho para a classificação das peças de roupa no conjunto de teste, com uma vantagem de pouco mais de 2% de acurácia para o GBM. Além disso, como esperado, a maioria dos casos de confundimento ocorreram entre as classes \textit{Coat, Shirt, Dress} e \textit{T-Shirt}. A Figura \ref{fig:misses} apresenta algumas das peças classificadas de forma errada pelo método de Gradient Boosting. 
 
 ```{r misses, cache = TRUE, fig.cap="Exemplos de erros de classificação do GBM. Classe predita em vermelho, classe verdadeira em preto."}
 preds <- predict(xgb,teste) 
@@ -554,15 +554,15 @@ idx_miss <- which(preds != teste$Y)[1:16]
 vis(teste[idx_miss,-1],teste$Y[idx_miss] ,preds[idx_miss])
 ```
 
-Sobre  o custo computacional, comparado aqui através do tempo de execução (foram utilizadas máquinas do www.kaggle.com para os ajustes), os algoritmos de Florestas Aleatórias demoraram mais que os de Boosting nos 2 casos (com e sem PCA), mesmo que, ao adicionar PCA, o tempo de execução das Florestas Aleatórias tenha reduzido bastante, uma vez que, com menos variáveis importantes, a complexidade das árvores ajustadas tende a diminuir, acelerando o ajuste. Também é importante ressaltar, que se dividirmos o tempo de execução pelo número de árvores ajustadas, no caso com PCA, as árvores ficam mais rápidas que o Boosting pelo menos motivo.
+Sobre  o custo computacional, comparado aqui através do tempo de execução (foram utilizadas máquinas do www.kaggle.com para os ajustes), os algorítmos de Florestas Aleatórias demoraram mais que os de Boosting nos 2 casos (com e sem PCA), mesmo que, ao adicionar PCA, o tempo de execução das Florestas Aleatórias tenha reduzido bastante, uma vez que, com menos variáveis importantes, a complexidade das árvores ajustadas tende a diminuir, acelerando o ajuste. Também é importante ressaltar, que se dividirmos o tempo de execução pelo número de árvores ajustadas, no caso com PCA, as árvores ficam mais rápidas que o Boosting pelo mesmo motivo.
 
-O número de passos $M = 500$ selecionado foi o maior testado no grid de escolha dos parâmetros, o que indica que, possivelmente, a classificação poderia ser ainda mais precisa se fossem utilizados mais passos, enquanto com as 1000 árvores consideradas as Florestas Aleatórias já atingiam 100% de acurácia no conjunto de treinamento, indicando pouco potencial de melhora com o investimento de mais árvores.
+O número de passos $M = 500$ selecionado foi o maior testado no grid de escolha dos parâmetros, o que indica que, possivelmente, a classificação poderia ser ainda mais precisa se fossem utilizados mais passos, enquanto que com as 1000 árvores consideradas as Florestas Aleatórias já atingiam 100% de acurácia no conjunto de treinamento, indicando pouco potencial de melhora com o investimento de mais árvores.
 
-Com respeito ao efeito do pré-processamento por Análise de Componentes Principais (PCA), utilizando o método apenas como uma rotação (PCA-Whitening), a consequência foi uma diminuição muito grande no poder de predição dos métodos. Isso acontece porque a rotação apenas faz com que variáveis se transformem na direção de maior variabilidade, mas sem levar em consideração sua relação com a resposta. Como consequência, alguns detalhes importantes para predição mas com pouca variabilidade são "diluídos" em muitas componentes de pouca importância e acabam sendo de difícil identificação pelos preditores.  Esse problema não ocorreria, por exemplo, se regiões lineares discriminassem bem as respotas, o que geralmente não é caso de dados de imagens.
+Com respeito ao efeito do pré-processamento por Análise de Componentes Principais (PCA), utilizando o método apenas como uma rotação (PCA-Whitening), a consequência foi uma diminuição muito grande no poder de predição dos métodos. Isso acontece porquê a rotação apenas faz com que variáveis se transformem na direção de maior variabilidade, mas sem levar em consideração sua relação com a resposta. Como consequência, alguns detalhes importantes para predição com pouca variabilidade são "diluídos" em muitas componentes de pouca importância e acabam sendo de difícil identificação pelos preditores.  Esse problema não ocorreria, por exemplo, se regiões lineares discriminassem bem as respotas, o que geralmente não é caso de dados de imagens.
 
   
 # Conclusão
 
-Através da investigação dos resultados da aplicação e da discussão dos pontos apontados nas seções de Discussão e Metodologia, pudemos concluir que o algoritmo de Gradient Boosting produz preditores muito bons por ter sido construído com uma estratégia muito eficiente e que pode ser regulada através da inclusão de diversos parâmetros de ajuste em suas variações para evitar problemas característicos dos problemas. Como consequência, percebemos que, se construído e ajustado de maneira apropriada, ele produz resultados melhores do que a estratégia de Florestas Aleatórias, tanto do ponto de vista de erro de predição quanto em custo computacional. De maneira geral, criar novas árvores simples baseado nas qualidades e defeitos do "comitê" a cada passo parece mais eficiente do que criar novas árvores de maneira aleatória e independente das qualidades e defeitos do preditor.
+Através da investigação dos resultados da aplicação e da discussão dos pontos apontados nas seções de Discussão e Metodologia, concluímos que o algorítmo de Gradient Boosting produz preditores muito bons por ter sido construído com uma estratégia muito eficiente e que pode ser regulada através da inclusão de diversos parâmetros de ajuste em suas variações para evitar problemas característicos dos problemas. Como consequência, percebemos que, se construído e ajustado de maneira apropriada, ele produz resultados melhores do que a estratégia de Florestas Aleatórias, tanto do ponto de vista de erro de predição quanto em custo computacional. De maneira geral, criar novas árvores simples baseado nas qualidades e defeitos do "comitê" a cada passo parece mais eficiente do que criar novas árvores de maneira aleatória e independente das qualidades e defeitos do preditor.
 
-A rotação da matriz das covariáveis através do uso de Componentes Principais não é apropriada para o tipo de problema considerado, pois a rotação induz a perda de características importantes para o problema de classificação. O fato dos métodos testados serem capazes de criar regiões de separação altamente não-lineares é uma das maiores vantagens de se usar árvores, mas essa vantagem acaba sendo perdida devido à rotação feita. Por outro lado, caso essa rotação fosse apropriada, uma redução de variáveis poderia ser feita para ajustar os modelos de maneira mais rápida, assim, mais passos do Gradient Boosting poderiam ser feitos com o mesmo tempo, possivelmente obtendo preditores ainda melhores.
+A rotação da matriz das covariáveis através do uso de Componentes Principais não é apropriada para o tipo de problema considerado, pois a rotação induz à perda de características importantes para o problema de classificação. O fato dos métodos testados serem capazes de criar regiões de separação altamente não-lineares é uma das maiores vantagens de se usar árvores, mas essa vantagem acaba sendo perdida devido à rotação feita. Por outro lado, caso essa rotação fosse apropriada, uma redução de variáveis poderia ser feita para ajustar os modelos de maneira mais rápida, assim, mais passos do Gradient Boosting poderiam ser feitos com o mesmo tempo, possivelmente obtendo preditores ainda melhores.
