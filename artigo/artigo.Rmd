@@ -303,7 +303,7 @@ onde $b$ é uma função de base (uma função constante por partes, no caso das
 \min_{\beta_m,\Theta_m} \sum_{i=1}^N (r_{m-1}(x_i) - \beta_m b(x_i;\Theta_m))^2 ,
 \end{equation}
 
-em que $r_{m-1}(x_i) = y_i - f_{m-1}(x_i)$. Ao compararmos a equação acima ao problema de regressão linear simples, $r_{m-1}(x_i)$ toma o papel de $y_i$ e $\beta_m b(x_i;\gamma_m)$, o papel de $\beta x_i$. Portanto, a analogia leva à conclusão de se ajustar uma função de base aos resíduos.
+em que $r_{m-1}(x_i) = y_i - f_{m-1}(x_i)$. Ao compararmos a equação acima ao problema de regressão linear simples, $r_{m-1}(x_i)$ toma o papel de $y_i$ e $\beta_m b(x_i;\Theta_m)$, o papel de $\beta x_i$. Portanto, a analogia leva à conclusão de se ajustar uma função de base aos resíduos.
 
 <!---Se olharmos a equação equação \ref{eq:tree_region_argmin}, a predição da árvore $T(x_i;\Theta)$ é justamente o argumento que fornece o mínimo. Este é o mesmo papel que o valor negativo do gradiente desempenha em \ref{eq:general_emp_argmin}, o que os tornam similares, em certo sentido. Além disso, também existe a semelhança entre \ref{eq:tree_pred_argmin} e \ref{eq:grad_step_problem} (onde a diferença é que, no caso das árvores, a busca pela solução ótima é restrita ao nó terminal).--->
 
@@ -336,7 +336,7 @@ Se juntarmos as idéias e formularmos um algorítmo, temos o boosting por gradie
     2. Ajustar uma nova árvore $f_m$ ao conjunto de dados $(r_{im},\textbf{x}_i)$ com J regiões terminais $R_j^m, j=1,\dots,J$\\
     3. Para $j=1,\dots,J$, obtenha
     $$
-    \hat{d_j^m} = \arg \min_{d} \sum_{i=1}^N L(y_i,f_{m-1}(x_i) + d);
+    \hat{d}_j^m = \arg \min_{d} \sum_{i=1}^N L(y_i,f_{m-1}(x_i) + d);
     $$\\
     4. Atualize $f_m (x_i) = f_{m-1} (x_i) + \sum_{j=1}^J \hat d_j^m I(x_i \in R_j^m)$;
   }
@@ -374,14 +374,14 @@ Como visto em disciplinas de delineamento de experimentos, interações de altos
 A taxa de aprendizado $\eta$ é, na verdade, uma estratégia de encolhimento (do mesmo tipo associado à Regressão Ridge), cujo propósito é evitar sobreajuste do modelo e melhorar sua predição. Para boosting o passo 4 do algorítmo \ref{gradboost_alg} é levemente modificado de forma que agora
 
 $$
-f_m (x_i) = f_{m-1} (x_i) + \eta \sum_{j=1}^J \gamma_{jm} I(x_i \in R_{jm}).
+f_m (x_i) = f_{m-1} (x_i) + \eta \sum_{j=1}^J d_j^m I(x_i \in R_j^m).
 $$
 
-Note a semelhança com $\rho$, na equação \ref{eq:general_emp_grad_argmin} (por este motivo é chamado de taxa de aprendizado). Em @elements é citado uma dependência entre os valores de $\nu$ e $M$. Habitualmente valores pequenos de $\nu$ levam a valores grande de $M$. Como em @boosting2001 foi-se descoberto empiricamente que pequenos $\nu$ fornecem os menores erros de predição, quando avaliados no conjunto de teste, a estratégia para escolha deles é fixar valores pequenos de $\nu$ e buscar aqueles $M$ que levam à erros de predição satisfatórios.
+Note a semelhança com $\rho$, na equação \ref{eq:general_emp_grad_argmin} (por este motivo é chamado de taxa de aprendizado). Em @elements é citado uma dependência entre os valores de $\eta$ e $M$. Habitualmente valores pequenos de $\eta$ levam a valores grande de $M$. Como em @boosting2001 foi-se descoberto empiricamente que pequenos $\eta$ fornecem os menores erros de predição, quando avaliados no conjunto de teste, a estratégia para escolha deles é fixar valores pequenos de $\eta$ e buscar aqueles $M$ que levam à erros de predição satisfatórios.
 
 ### Taxa de Amostagem
 
-A idéia aqui é simplesmente de que, a cada iteração, ajusta-se a árvore de decisão em uma fração $\eta$ (habitualmente $\eta = 1/2$ ou até mesmo menos) dos dados, sorteada aleatoriamente. Com isso @boosting2001 reporta que o custo computacional cai bastante e que, em muitos casos, o modelo torna-se mais acurado. Porém, é importante citar que sem utilizar encolhimento, o desempenho do modelo costuma cair drasticamente. 
+A idéia aqui é simplesmente de que, a cada iteração, ajusta-se a árvore de decisão em uma fração $\nu$ (habitualmente $\nu = 1/2$ ou até mesmo menos) dos dados, sorteada aleatoriamente. Com isso @boosting2001 reporta que o custo computacional cai bastante e que, em muitos casos, o modelo torna-se mais acurado. Porém, é importante citar que sem utilizar encolhimento, o desempenho do modelo costuma cair drasticamente. 
 
 
 ## PCA Whitening
@@ -475,7 +475,7 @@ vis(treino[idx,-1]) + facet_grid(cols = vars(roupa))
 
 # Aplicação \label{sec_apli}
 
-Existem diversas ferramentas disponíveis para ajuste de algorítmos de Boosting. Em particular, para a linguagem R, os mais populares são os pacotes \textit{"xgboost" (@xgb_pack), "lightGBM" (lightgbm_pack)} e no framework "h2o" (@h2o_pack). Para esse trabalho, os ajustes serão feitos usando o pacote \textit{"xgboost"}, por apresentar maior flexibilização dos parâmetros de maneira mais simples e por também estar implementado através da função \textit{train} do pacote \textit{caret} (@caret_pack), o que facilita a comparação com outros modelos ajustados.
+Existem diversas ferramentas disponíveis para ajuste de algorítmos de Boosting. Em particular, para a linguagem R, os mais populares são os pacotes \textit{"xgboost"} [@xgb_pack], \textit{"lightGBM"} [@lightgbm_pack] e no framework "h2o" [@h2o_pack]. Para esse trabalho, os ajustes serão feitos usando o pacote \textit{"xgboost"}, por apresentar maior flexibilização dos parâmetros de maneira mais simples e por também estar implementado através da função \textit{train} do pacote \textit{caret} [@caret_pack], o que facilita a comparação com outros modelos ajustados.
 
 O conjunto original de treinamento foi separado em dois subconjuntos, um subconjunto para realizar o treinamento de fato (90%) e um outro subconjunto de validação (10%), de maneira aleatória. O conjunto de teste será deixado exclusivamente para a estimação da verdadeira performance dos modelos ajustados. Estratégias mais sofisticadas de validação cruzada não foram utilizadas por questões de tempo. Os métodos utilizados costumam ter ajustes lentos, o que torna o ajuste em um grid de parâmetros muito custoso, principalmente se uma grande quantidade de árvores $M$ pertence ao grid.
 
@@ -488,7 +488,7 @@ Para comparação dos métodos, foram feitos ajustes de diversos tipos de modelo
   - Gradient Boosting com árvores de classificação + PCA Whitening: PCA utilizada no pré-processamento, todas as componentes foram utlizadas. Taxa de aprendizado $\eta = 0.08$, árvores $f_m$ com profundindade máxima $4$, taxa de amostragem de 80% para cada árvore e um total de $M = 500$ passos.
   - Florestas Aleatórias + PCA Whitening: PCA utilizada no pré-processamento, todas as componentes foram utlizadas. Total de 1000 árvores, com $m = 34 \sim \sqrt{p}$ covariáveis amostradas para cada árvore.
   
-Os resultados obtidos por cada método em termos de acurácia são apresentados na Tabela \ref{tab:resultados}. Além disso as Tabelas \ref{tab:confusion_gbm} a \ref{tab:confusion_rf_pca} apresentam as matrizes de confusão de cada caso.
+Os resultados obtidos por cada método em termos de acurácia são apresentados na Tabela \ref{tab:resultados}. Além disso as Tabelas \ref{tab:confusion_gbm} a \ref{tab:confusion_rf_pca} apresentam as matrizes de confusão de cada caso. GBM se refere a "Gradient Boosting Machine".
 
 ```{r resultados, cache = TRUE}
 xgb_treino_ac <- mean(predict(xgb,treino) == treino$Y)
@@ -539,14 +539,14 @@ kable(table(Predito = predict(xgb_pca, teste), Classe = teste$Y), format = "late
  
 ```{r confusion_rf_pca, cache = TRUE}
 kable(table(Predito = predict(rf_pca, teste), Classe = teste$Y), format = "latex",
-      caption = "Matriz de Confusão para predições com Gradient Boosting", booktabs = T) %>%
+      caption = "Matriz de Confusão para predições com Florestas Aleatórias com PCA", booktabs = T) %>%
     kable_styling(full_width = T, latex_options = c("HOLD_position","striped"), font_size = 8) %>%
   row_spec(0, angle = -45) %>% add_header_above(header = c("", "Predito" = 10))
 ```
 
 # Discussão
 
-Tanto o algorítmo de Gradient Boosting quanto das Florestas Aleatórias apresentaram um excelente desempenho para a classificação das peças de roupa no conjunto de teste, com uma vantagem de pouco mais de 2% de acurácia para o GBM. Além disso, como esperado, a maioria dos casos de confundimento ocorreram entre as classes \textit{Coat, Shirt, Dress} e \textit{T-Shirt}. A Figura \ref{fig:misses} apresenta algumas das peças classificadas de forma errada pelo método de Gradient Boosting. 
+Tanto o algorítmo de Gradient Boosting quanto das Florestas Aleatórias apresentaram um excelente desempenho para a classificação das peças de roupa no conjunto de teste, com uma vantagem de pouco mais de 2% de acurácia para o GBM. Além disso, como esperado, a maioria dos casos de confundimento ocorreram entre as classes \textit{Coat, Shirt, Dress} e \textit{T-Shirt}. A Figura 1 apresenta algumas das peças classificadas de forma errada pelo método de Gradient Boosting. 
 
 ```{r misses, cache = TRUE, fig.cap="Exemplos de erros de classificação do GBM. Classe predita em vermelho, classe verdadeira em preto."}
 preds <- predict(xgb,teste) 
